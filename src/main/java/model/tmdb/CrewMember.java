@@ -1,5 +1,6 @@
 package model.tmdb;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -9,6 +10,8 @@ import lombok.EqualsAndHashCode;
  */
 @Data
 @EqualsAndHashCode(of = "id")
+@JsonIgnoreProperties(ignoreUnknown = true)
+
 public class CrewMember {
     @JsonProperty("id")
     private int id;

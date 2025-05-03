@@ -1,6 +1,7 @@
 package model.tmdb;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 
 import java.util.List;
@@ -9,6 +10,7 @@ import java.util.List;
  * 电影演职人员信息
  */
 @Data
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class MovieCredits {
     @JsonProperty("id")
     private int id;

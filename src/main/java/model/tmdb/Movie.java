@@ -1,5 +1,6 @@
 package model.tmdb;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -9,6 +10,7 @@ import lombok.EqualsAndHashCode;
  */
 @Data
 @EqualsAndHashCode(of = "id") // 使用id作为唯一标识
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Movie {
     @JsonProperty("adult")
     private boolean adult;
