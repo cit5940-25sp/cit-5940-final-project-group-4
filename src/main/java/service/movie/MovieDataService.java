@@ -4,6 +4,7 @@ import model.game.Connection;
 import model.game.GameSession;
 import model.game.WinCondition;
 import model.tmdb.Movie;
+import model.tmdb.MovieCredits;
 
 import java.util.List;
 
@@ -107,4 +108,7 @@ public interface MovieDataService {
      * 初始化数据索引
      */
     void initializeDataIndexes();
+    
+    MovieCredits getMovieCredits(int movieId);
+
 }

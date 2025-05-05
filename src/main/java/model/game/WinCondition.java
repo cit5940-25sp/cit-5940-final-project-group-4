@@ -1,6 +1,13 @@
 package model.game;
 
 import lombok.Data;
+//import model.tmdb.Genre;
+//import model.tmdb.Movie;
+//import service.movie.MovieGenreService;
+//
+//import java.util.Arrays;
+//import java.util.List;
+
 
 /**
  * 胜利条件模型
@@ -49,4 +56,5 @@ public class WinCondition {
     public boolean isAchieved() {
         return this.currentCount >= this.targetCount;
     }
+
 }

@@ -2,9 +2,12 @@ package model.game;
 
 import lombok.Data;
 import model.tmdb.Movie;
+// Edit: Import WinCondition
+import model.game.WinCondition;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -33,11 +36,21 @@ public class GameSession {
 
     // 设置阶段（前3步）标志
     private boolean inSetupPhase;
+    
+    // Edit: Win condition for the current game
+    private WinCondition winCondition;
+    
+    private String player1Name;
+    private String player2Name;
+    private boolean isPlayer1Turn;
+    
+    private final List<HistoryRecord> recentHistory = new LinkedList<>();
+
 
     /**
      * 构造函数
      */
-    public GameSession(String sessionId, Movie startMovie) {
+    public GameSession(String sessionId, Movie startMovie, WinCondition winCondition, String player1Name, String player2Name) {
         this.sessionId = sessionId;
         this.currentMovie = startMovie;
         this.usedMovies = new ArrayList<>();
@@ -46,6 +59,10 @@ public class GameSession {
         this.connectionUsageCount = new HashMap<>();
         this.currentStep = 1;
         this.inSetupPhase = true;
+        this.winCondition = winCondition;
+        this.player1Name = player1Name;
+        this.player2Name = player2Name;
+        this.isPlayer1Turn = true;
     }
 
     /**
@@ -93,4 +110,38 @@ public class GameSession {
     public boolean isConnectionUsedThreeTimes(int personId) {
         return this.connectionUsageCount.getOrDefault(personId, 0) >= 3;
     }
+    
+    public WinCondition getWinCondition() {
+        return this.winCondition;
+    }
+    
+    public boolean hasWon() {
+        return winCondition != null && winCondition.isAchieved();
+    }
+    
+    public String getCurrentPlayerName() {
+        return isPlayer1Turn ? player1Name : player2Name;
+    }
+
+    public void switchTurn() {
+        isPlayer1Turn = !isPlayer1Turn;
+    }
+    
+    public void addInitialMovieToHistory(Movie movie) {
+        recentHistory.add(new HistoryRecord(movie, null));
+    }
+    
+    public void addToHistory(Movie movie, Connection connection) {
+        if (recentHistory.size() == 5) {
+            recentHistory.remove(0);  // Keep at most 5 history records
+        }
+        recentHistory.add(new HistoryRecord(movie, connection));
+    }
+
+    public List<HistoryRecord> getRecentHistory() {
+        return new ArrayList<>(recentHistory);
+    }
+
+
+
 }

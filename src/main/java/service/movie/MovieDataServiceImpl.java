@@ -126,6 +126,7 @@ public class MovieDataServiceImpl implements MovieDataService {
         return indexService.getMovieById(movieId);
     }
 
+
     @Override
     public boolean validateConnection(Movie previousMovie, Movie currentMovie) {
         if (previousMovie == null || currentMovie == null) {
@@ -328,4 +329,10 @@ public class MovieDataServiceImpl implements MovieDataService {
             loadInitialMovies();
         }
     }
+    
+    @Override
+    public MovieCredits getMovieCredits(int movieId) {
+        return indexService.getMovieCredits(movieId);
+    }
+
 }

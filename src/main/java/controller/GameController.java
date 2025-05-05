@@ -4,112 +4,149 @@ import model.game.Connection;
 import model.game.GameSession;
 import model.game.WinCondition;
 import model.tmdb.Movie;
+import model.tmdb.MovieCredits;
 import service.movie.MovieDataService;
-import service.movie.MovieDataServiceImpl;
+//import service.movie.MovieDataServiceImpl;
+import service.movie.MovieGenreService;
+import view.ConsoleView;
 
+import java.util.Arrays;
 import java.util.List;
-import java.util.Scanner;
+import java.util.Map;
 
 public class GameController {
-    private final MovieDataService movieService;
-    private GameSession session;
-    private WinCondition winCondition;
-    private final Scanner scanner;
+    private final GameSession session;
+    private final MovieDataService movieDataService;
+    private final ConsoleView view;
 
-    public GameController() {
-        this.movieService = MovieDataServiceImpl.getInstance();
-        this.scanner = new Scanner(System.in);
+    public GameController(GameSession session, MovieDataService movieDataService) {
+        this.session = session;
+        this.movieDataService = movieDataService;
+        this.view = new ConsoleView();
+    }
+    
+    private WinCondition promptUserToCreateWinCondition() {
+        Map<Integer, String> genreMap = MovieGenreService.getInstance().getAllGenreMap();
+        List<String> genreNames = genreMap.values().stream().sorted().toList();
+        return view.promptGenreWinCondition(genreNames, 1, 10);
     }
 
+
+
     public void startGame() {
-        System.out.println("\nWelcome to the Movie Battle Game!");
+        view.showWelcome();
 
-        // Initialize data indexes
-        movieService.initializeDataIndexes();
+     // Let user define win condition
+        WinCondition condition = promptUserToCreateWinCondition();
+        session.setWinCondition(condition);
 
-        // Get starting movie
-//        Movie startMovie = movieService.getRandomStarterMovie();
-        // For testing:
-        Movie startMovie = movieService.searchMoviesByPrefix("Inception").get(0);
-        System.out.println("\nStarting movie: " + startMovie.getTitle());
+        // Display win condition
+        if (condition != null) {
+            view.showWinCondition(condition.getConditionType() + " = " +
+                    condition.getConditionValue() + ", " +
+                    condition.getTargetCount() + " times");
+        }
 
-        // Initialize game session
-        session = new GameSession("session-1", startMovie);
 
-        // Set win condition (e.g., 3 Horror movies)
-        winCondition = new WinCondition("genre", "Horror", 3);
-        System.out.println("Win condition: Find 3 Horror movies\n");
+        Movie currentMovie = session.getCurrentMovie();
+        if (session.getRecentHistory().isEmpty()) {
+            session.addInitialMovieToHistory(currentMovie);
+        }
 
-        while (true) {
-            System.out.println("Current movie: " + session.getCurrentMovie().getTitle());
-            System.out.print("Enter the prefix of the next movie: ");
-            String prefix = scanner.nextLine();
 
-            List<Movie> suggestions = movieService.searchMoviesByPrefix(prefix);
-            if (suggestions.isEmpty()) {
-                System.out.println("No matching movies found. Please try again!");
+        while (!session.hasWon()) {
+            view.showCurrentRound(session.getCurrentStep());
+            view.showCurrentPlayer(session.getCurrentPlayerName());
+            
+            view.showRecentHistory(session.getRecentHistory());
+            
+            int[] genreIds = currentMovie.getGenreIds();
+            List<String> genreNames = Arrays.stream(genreIds)
+                .mapToObj(id -> MovieGenreService.getInstance().getGenreName(id))
+                .toList();
+
+            MovieCredits credits = movieDataService.getMovieCredits(currentMovie.getId());
+
+            List<String> directors = credits.getCrew().stream()
+                .filter(c -> "Director".equals(c.getJob()))
+                .map(c -> c.getName())
+                .toList();
+
+            List<String> writers = credits.getCrew().stream()
+                .filter(c -> "Writer".equals(c.getJob()) || "Screenplay".equals(c.getJob()))
+                .map(c -> c.getName())
+                .toList();
+
+            List<String> cinematographers = credits.getCrew().stream()
+                .filter(c -> "Director of Photography".equals(c.getJob()) || "Cinematographer".equals(c.getJob()))
+                .map(c -> c.getName())
+                .toList();
+
+            List<String> composers = credits.getCrew().stream()
+                .filter(c -> "Composer".equals(c.getJob()) || "Original Music Composer".equals(c.getJob()))
+                .map(c -> c.getName())
+                .toList();
+
+            List<String> castMembers = credits.getCast().stream()
+                .limit(8)
+                .map(c -> c.getName())
+                .toList();
+
+            view.showFullMovieDetails(currentMovie, genreNames, directors, writers, cinematographers, composers, castMembers);
+            view.showProgress(condition.getCurrentCount(), condition.getTargetCount());
+            
+            String prefix = view.promptMoviePrefix();
+            List<Movie> suggestions = movieDataService.searchMoviesByPrefix(prefix);
+            view.showSuggestions(suggestions);
+
+            if (suggestions.isEmpty()) continue;
+
+            int index = view.promptMovieChoice(suggestions.size());
+            Movie selected = suggestions.get(index);
+
+            // Check for duplicates
+            if (movieDataService.isMovieAlreadyUsed(selected, session)) {
+                view.showError("You already used this movie.");
                 continue;
             }
 
-            System.out.println("Suggested movies:");
-            for (int i = 0; i < suggestions.size(); i++) {
-                System.out.println((i + 1) + ". " + suggestions.get(i).getTitle());
-            }
-
-            System.out.print("Choose the movie number: ");
-            int choice;
-            try {
-                choice = Integer.parseInt(scanner.nextLine()) - 1;
-            } catch (NumberFormatException e) {
-                System.out.println("Invalid input. Please enter a number!\n");
+            // Validate connection
+            if (!movieDataService.validateConnection(currentMovie, selected)) {
+                view.showError("No valid connection between movies.");
                 continue;
             }
 
-            if (choice < 0 || choice >= suggestions.size()) {
-                System.out.println("Selection out of range. Please try again!\n");
-                continue;
-            }
+            // Register movie
+            movieDataService.registerUsedMovie(selected, session);
 
-            Movie nextMovie = suggestions.get(choice);
-
-            if (movieService.isMovieAlreadyUsed(nextMovie, session)) {
-                System.out.println("This movie has already been used. Choose another one!\n");
-                continue;
-            }
-
-            if (!movieService.validateConnection(session.getCurrentMovie(), nextMovie)) {
-                System.out.println("No valid connection between the two movies. Try again!\n");
-                continue;
-            }
-
-            List<Connection> connections = movieService.getConnections(session.getCurrentMovie(), nextMovie);
-            Connection firstValid = null;
-            for (Connection c : connections) {
-                if (!movieService.isConnectionUsedThreeTimes(c, session)) {
-                    firstValid = c;
+            // Register connection and show explanation
+            List<Connection> connections = movieDataService.getConnections(currentMovie, selected);
+            boolean connectionRegistered = false;
+            for (Connection conn : connections) {
+                if (!movieDataService.isConnectionUsedThreeTimes(conn, session)) {
+                    movieDataService.registerUsedConnection(conn, session);
+                    view.showConnectionInfo(conn.getConnectionValue());
+                    session.addToHistory(selected, conn);
+                    connectionRegistered = true;
                     break;
                 }
             }
-            if (firstValid == null) {
-                System.out.println("All connection points have been used 3 times. Try another movie!\n");
-                continue;
+            
+
+            if (!connectionRegistered) {
+                view.showError("All available connections between the movies have been used 3 times.");
+                continue; // force player to pick another movie
             }
 
-            // Register connection and movie
-            movieService.registerUsedConnection(firstValid, session);
-            movieService.registerUsedMovie(nextMovie, session);
-
-            if (movieService.matchesWinCondition(nextMovie, winCondition)) {
-                winCondition.incrementProgress();
-                System.out.println("This movie matches the win condition! Progress: " + winCondition.getCurrentCount() + "/" + winCondition.getTargetCount());
+            // Check win condition
+            if (movieDataService.matchesWinCondition(selected, condition)) {
+                condition.incrementProgress();
             }
 
-            if (winCondition.isAchieved()) {
-                System.out.println("\nCongratulations! You've achieved the win condition. Game over!");
-                break;
-            }
-
-            System.out.println("-----------------------------\n");
+            currentMovie = selected;
+            session.switchTurn();
         }
+
+        view.showVictory();
     }
 }

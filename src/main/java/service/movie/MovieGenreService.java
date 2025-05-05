@@ -48,25 +48,25 @@ public class MovieGenreService {
             log.warn("无法获取电影类型列表，使用默认映射");
             // 使用默认映射
             Map<Integer, String> defaultGenres = new HashMap<>();
-            defaultGenres.put(28, "动作");
-            defaultGenres.put(12, "冒险");
-            defaultGenres.put(16, "动画");
-            defaultGenres.put(35, "喜剧");
-            defaultGenres.put(80, "犯罪");
-            defaultGenres.put(99, "纪录片");
-            defaultGenres.put(18, "剧情");
-            defaultGenres.put(10751, "家庭");
-            defaultGenres.put(14, "奇幻");
-            defaultGenres.put(36, "历史");
-            defaultGenres.put(27, "恐怖");
-            defaultGenres.put(10402, "音乐");
-            defaultGenres.put(9648, "悬疑");
-            defaultGenres.put(10749, "爱情");
-            defaultGenres.put(878, "科幻");
-            defaultGenres.put(10770, "电视电影");
-            defaultGenres.put(53, "惊悚");
-            defaultGenres.put(10752, "战争");
-            defaultGenres.put(37, "西部");
+            defaultGenres.put(28, "Action");
+            defaultGenres.put(12, "Adventure");
+            defaultGenres.put(16, "Animation");
+            defaultGenres.put(35, "Comedy");
+            defaultGenres.put(80, "Crime");
+            defaultGenres.put(99, "Documentary");
+            defaultGenres.put(18, "Drama");
+            defaultGenres.put(10751, "Family");
+            defaultGenres.put(14, "Fantasy");
+            defaultGenres.put(36, "History");
+            defaultGenres.put(27, "Horror");
+            defaultGenres.put(10402, "Music");
+            defaultGenres.put(9648, "Mystery");
+            defaultGenres.put(10749, "Romance");
+            defaultGenres.put(878, "Science Fiction");
+            defaultGenres.put(10770, "TV Movie");
+            defaultGenres.put(53, "Thriller");
+            defaultGenres.put(10752, "War");
+            defaultGenres.put(37, "Western");
 
             defaultGenres.forEach((id, name) -> {
                 genreMap.put(id, name);
@@ -88,7 +88,7 @@ public class MovieGenreService {
      * @return 类型名称
      */
     public String getGenreName(int genreId) {
-        return genreMap.getOrDefault(genreId, "未知类型");
+        return genreMap.getOrDefault(genreId, "Unknown Genre");
     }
 
     /**
@@ -123,4 +123,26 @@ public class MovieGenreService {
         }
         return false;
     }
+    
+    /**
+     * Get all genre ID-to-name mappings.
+     *
+     * @return an unmodifiable map of genre IDs to genre names
+     */
+    public Map<Integer, String> getAllGenreMap() {
+        return Map.copyOf(genreMap);
+    }
+
+    /**
+     * Get a sorted list of all genre names.
+     *
+     * @return sorted list of genre names
+     */
+    public List<String> getAllGenreNames() {
+        return genreMap.values()
+                       .stream()
+                       .sorted()
+                       .toList();
+    }
+
 }
