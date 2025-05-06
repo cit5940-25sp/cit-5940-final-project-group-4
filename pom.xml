@@ -50,6 +50,12 @@
       <version>4.9.3</version>
       <scope>test</scope>
     </dependency>
+    <!-- Add Lanterna below -->
+    <dependency>
+      <groupId>com.googlecode.lanterna</groupId>
+      <artifactId>lanterna</artifactId>
+      <version>3.0.4</version>
+    </dependency>
     <!-- Jackson -->
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>

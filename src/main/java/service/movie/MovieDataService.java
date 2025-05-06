@@ -30,10 +30,10 @@ public interface MovieDataService {
     /**
      * 根据前缀搜索电影
      *
-     * @param prefix 电影名称前缀
+     * @param selectedTitle 电影名称前缀
      * @return 匹配的电影列表
      */
-    List<Movie> searchMoviesByPrefix(String prefix);
+    List<Movie> searchMoviesByPrefix(String selectedTitle);
 
     /**
      * 根据ID获取电影详情
