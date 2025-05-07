@@ -1,6 +1,7 @@
 # Movie Battle Game System Project Documentation
 
 > CIT5940 Group 4
+> HongKai Zhang, Feng Jiang, YuKun Gao
 
 ## Additional Package:
 ### Lombok `@Slf4j` Annotation
