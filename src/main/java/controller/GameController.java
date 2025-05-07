@@ -6,11 +6,8 @@ import model.game.WinCondition;
 import model.tmdb.Movie;
 import model.tmdb.MovieCredits;
 import service.movie.MovieDataService;
-//import service.movie.MovieDataServiceImpl;
 import service.movie.MovieGenreService;
 import view.ConsoleView;
-
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -118,11 +115,6 @@ public class GameController {
                     credits = movieDataService.getMovieCredits(selected.getId());
                 }
 
-                List<String> genreNames = (selected.getGenreIds() == null || selected.getGenreIds().length == 0)
-                        ? List.of("Unknown")
-                        : Arrays.stream(selected.getGenreIds())
-                            .mapToObj(id -> MovieGenreService.getInstance().getGenreName(id))
-                            .toList();
 
                 movieDataService.registerUsedMovie(selected, session);
 
