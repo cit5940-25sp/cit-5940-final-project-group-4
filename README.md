@@ -135,14 +135,14 @@ classDiagram
         +registerUsedConnection(Connection, GameSession) void
         +initializeDataIndexes() void
     }
-    
+
     %% Main service implementation
     class MovieDataServiceImpl {
         -static MovieDataServiceImpl instance
         +getInstance() MovieDataServiceImpl
         +matchesWinCondition(Movie, WinCondition) boolean
     }
-    
+
     class MovieIndexService {
         -static MovieIndexService instance
         +getInstance() MovieIndexService
@@ -150,13 +150,13 @@ classDiagram
         +getMovieById(int) Movie
         +getMovieCredits(int) MovieCredits
     }
-    
+
     class MovieGenreService {
         -static MovieGenreService instance
         +getInstance() MovieGenreService
         +hasGenre(int[], String) boolean
     }
-    
+
     %% TMDB API Service
     class TMDBApiService {
         +getMovieGenres() List~Genre~
@@ -164,7 +164,7 @@ classDiagram
         +getMovieDetails(int) Movie
         +getMovieCredits(int) MovieCredits
     }
-    
+
     %% Main model class
     class Movie {
         -int id
@@ -172,18 +172,18 @@ classDiagram
         -int[] genreIds
         -double voteAverage
     }
-    
+
     class MovieCredits {
         -int id
         -List~CastMember~ cast
         -List~CrewMember~ crew
     }
-    
+
     class Genre {
         -int id
         -String name
     }
-    
+
     %% Game core model
     class GameSession {
         -Movie currentMovie
@@ -192,7 +192,7 @@ classDiagram
         +isMovieAlreadyUsed(Movie) boolean
         +isConnectionUsedThreeTimes(int) boolean
     }
-    
+
     class Connection {
         -Movie movie1
         -Movie movie2
@@ -200,7 +200,7 @@ classDiagram
         -String connectionValue
         -int personId
     }
-    
+
     class WinCondition {
         -String conditionType
         -String conditionValue
@@ -208,21 +208,61 @@ classDiagram
         +isAchieved() boolean
     }
 
+    %% User interface view
+    class ConsoleView {
+        -MultiWindowTextGUI gui
+        -boolean timerRunning
+        -int secondsRemaining
+        +showWelcome() void
+        +showWinCondition(String) void
+        +showGameTurn(...) String
+        +showVictory() void
+        +showError(String) void
+        +showErrorNonBlocking(String) void
+        +stop() void
+        +resettime() void
+    }
+
+    %% Game controller
+    class GameController {
+        -GameSession session
+        -MovieDataService movieDataService
+        -ConsoleView view
+        +startGame() void
+    }
+
+    %% Main entry point
+    class Main {
+        +main(String[]) void
+    }
+
     %% Core Relationships
     MovieDataService <|.. MovieDataServiceImpl : accomplish
-    
     MovieDataServiceImpl --> MovieIndexService : use
     MovieDataServiceImpl --> MovieGenreService : use
     MovieDataServiceImpl --> GameSession : manage
-    
+
     MovieIndexService --> TMDBApiService : Call
     MovieGenreService --> TMDBApiService : Call
-    
+
     Movie <-- TMDBApiService : Get
     MovieCredits <-- TMDBApiService : Get
     Genre <-- TMDBApiService : Get
-    
+
     Connection --> Movie : associate
     GameSession --> Movie : track
     GameSession --> Connection : Record usage
+
+    %% New associations
+    GameController --> GameSession : control
+    GameController --> MovieDataService : use
+    GameController --> ConsoleView : display
+    ConsoleView --> Movie : show
+    ConsoleView --> MovieCredits : show
+    ConsoleView --> WinCondition : show
+    ConsoleView --> Connection : show
+
+    Main --> MovieDataService : create
+    Main --> GameSession : create
+    Main --> GameController : create
 ``` 
