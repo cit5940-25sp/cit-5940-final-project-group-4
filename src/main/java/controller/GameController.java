@@ -13,6 +13,10 @@ import view.ConsoleView;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
+
+import com.googlecode.lanterna.gui2.Label;
+
 import java.io.IOException;
 
 public class GameController {
@@ -25,30 +29,35 @@ public class GameController {
         this.movieDataService = movieDataService;
     }
 
-    private WinCondition promptUserToCreateWinCondition() {
+    private WinCondition getRandomGenreWinConditiontion(int targetc) {
         Map<Integer, String> genreMap = MovieGenreService.getInstance().getAllGenreMap();
         List<String> genreNames = genreMap.values().stream().sorted().toList();
-        return view.promptGenreWinCondition(genreNames, 1, 10);
+        String randomGenre = genreNames.get(new Random().nextInt(genreNames.size()));
+        return new WinCondition("genre", randomGenre, targetc);
     }
 
     public void startGame() {
         try {
             this.view = new ConsoleView();
             view.showWelcome();
+            
+            int targetCount = new Random().nextInt(5) + 3;
 
-            WinCondition condition = promptUserToCreateWinCondition();
-            session.setWinCondition(condition);
+            WinCondition player1Condition = getRandomGenreWinConditiontion(targetCount);
+            WinCondition player2Condition = getRandomGenreWinConditiontion(targetCount);
+            session.setPlayer1WinCondition(player1Condition);
+            session.setPlayer2WinCondition(player2Condition);
 
-            if (condition != null) {
-                view.showWinCondition(condition.getConditionType() + " = " +
-                        condition.getConditionValue() + ", " +
-                        condition.getTargetCount() + " times");
-            }
+            view.showWinCondition(session.getPlayer1Name() + ": " + player1Condition.getConditionValue() + ", " + player1Condition.getTargetCount() + " times");
+            view.showWinCondition(session.getPlayer2Name() + ": " + player2Condition.getConditionValue() + ", " + player2Condition.getTargetCount() + " times");
 
             Movie currentMovie = session.getCurrentMovie();
             if (session.getRecentHistory().isEmpty()) {
                 session.addInitialMovieToHistory(currentMovie);
             }
+            
+            boolean firstAttempt = true;
+            Label timerLabel = new Label("Time left: 30s");
 
             while (!session.hasWon()) {
                 String selectedTitle = view.showGameTurn(
@@ -56,7 +65,7 @@ public class GameController {
                         session.getCurrentPlayerName(),
                         session.getRecentHistory(),
                         currentMovie,
-                        condition,
+                        session.getCurrentPlayerWinCondition(),
                         movieDataService,
                         () -> {
                             try {
@@ -66,9 +75,12 @@ public class GameController {
                             }
                             System.out.println("\u23F0 Time's up! You lost.");
                             System.exit(0);
-                        }
+                        },
+                        timerLabel,
+                        firstAttempt
                 );
-
+                
+                
                 List<Movie> candidates = movieDataService.searchMoviesByPrefix(selectedTitle);
                 Movie selected = candidates.stream()
                         .filter(m -> m.getTitle().equals(selectedTitle))
@@ -89,6 +101,10 @@ public class GameController {
                     view.showErrorNonBlocking("No valid connection between movies.");
                     continue;
                 }
+                
+                timerLabel = new Label("Time left: 30s");
+                view.resettime();
+                
 
                 // Ensure full movie data is loaded
                 selected = movieDataService.getMovieById(selected.getId());
@@ -108,16 +124,6 @@ public class GameController {
                             .mapToObj(id -> MovieGenreService.getInstance().getGenreName(id))
                             .toList();
 
-//                view.showFullMovieDetails(
-//                        selected,
-//                        genreNames,
-//                        credits.getCrew().stream().filter(c -> "Director".equals(c.getJob())).map(c -> c.getName()).toList(),
-//                        credits.getCrew().stream().filter(c -> "Writer".equals(c.getJob()) || "Screenplay".equals(c.getJob())).map(c -> c.getName()).toList(),
-//                        credits.getCrew().stream().filter(c -> "Cinematographer".equals(c.getJob()) || "Director of Photography".equals(c.getJob())).map(c -> c.getName()).toList(),
-//                        credits.getCrew().stream().filter(c -> "Composer".equals(c.getJob()) || "Original Music Composer".equals(c.getJob())).map(c -> c.getName()).toList(),
-//                        credits.getCast().stream().limit(8).map(c -> c.getName()).toList()
-//                );
-
                 movieDataService.registerUsedMovie(selected, session);
 
                 List<Connection> connections = movieDataService.getConnections(currentMovie, selected);
@@ -126,7 +132,6 @@ public class GameController {
                 for (Connection conn : connections) {
                     if (!movieDataService.isConnectionUsedThreeTimes(conn, session)) {
                         movieDataService.registerUsedConnection(conn, session);
-//                        view.showConnectionInfo(conn.getConnectionValue());
                         session.addToHistory(selected, conn);
                         connectionRegistered = true;
                         break;
@@ -138,6 +143,7 @@ public class GameController {
                     continue;
                 }
 
+                WinCondition condition = session.getCurrentPlayerWinCondition();
                 if (movieDataService.matchesWinCondition(selected, condition)) {
                     condition.incrementProgress();
                 }
@@ -147,19 +153,13 @@ public class GameController {
 
                 currentMovie = selected;
                 session.switchTurn();
+                firstAttempt = true;
             }
-            
-            if(!session.hasWon()) {
-                try {
-                    view.showVictory();
-                    view.stop();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                System.out.println("🎉 You won! You met the win condition!");
-                System.exit(0);
-            }
-
+            //firstAttempt = true;
+            view.showVictory();
+            view.stop();
+            System.out.println("\uD83C\uDF89 You won! You met the win condition!");
+            System.exit(0);
 
         } catch (IOException e) {
             System.err.println("Error initializing Lanterna screen: " + e.getMessage());

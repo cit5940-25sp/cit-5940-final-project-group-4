@@ -9,104 +9,104 @@ import model.tmdb.MovieCredits;
 import java.util.List;
 
 /**
- * 电影数据服务接口
- * 提供游戏所需的所有电影数据相关功能
+* Movie data service interface
+* Provides all movie data related functions required by the game
  */
 public interface MovieDataService {
     /**
-     * 获取初始电影列表
+     * Get the initial list of movies
      *
-     * @return Top 5000 热门电影列表
+     * @return Top 5000 popular movies list
      */
     List<Movie> getInitialMoviesList();
 
     /**
-     * 获取随机起始电影
+     * Get a random starting movie
      *
-     * @return 一部随机选择的起始电影
+     * @return A randomly selected starting movie
      */
     Movie getRandomStarterMovie();
 
     /**
-     * 根据前缀搜索电影
+     * Search movies by prefix
      *
-     * @param selectedTitle 电影名称前缀
-     * @return 匹配的电影列表
+     * @param selectedTitle Movie title prefix
+     * @return List of matching movies
      */
     List<Movie> searchMoviesByPrefix(String selectedTitle);
 
     /**
-     * 根据ID获取电影详情
+     * Get movie details by ID
      *
-     * @param movieId 电影ID
-     * @return 电影详情
+     * @param movieId Movie ID
+     * @return Movie Details
      */
     Movie getMovieById(int movieId);
 
     /**
-     * 验证两部电影之间是否存在有效连接
+     * Verify that there is a valid connection between two movies
      *
-     * @param previousMovie 前一部电影
-     * @param currentMovie  当前电影
-     * @return 是否存在有效连接
+     * @param previousMovie Previous Movie
+     * @param currentMovie  Current Movies
+     * @return Is there a valid connection?
      */
     boolean validateConnection(Movie previousMovie, Movie currentMovie);
 
     /**
-     * 获取两部电影之间的所有连接
+     * Get all connections between two movies
      *
-     * @param previousMovie 前一部电影
-     * @param currentMovie  当前电影
-     * @return 连接列表
+     * @param previousMovie Previous Movie
+     * @param currentMovie  Current Movies
+     * @return Connection List
      */
     List<Connection> getConnections(Movie previousMovie, Movie currentMovie);
 
     /**
-     * 检查连接是否已被使用三次
-     *
-     * @param connection 连接
-     * @param session    游戏会话
-     * @return 是否已使用三次
+    * Check if the connection has been used three times
+    *
+    * @param connection connection
+    * @param session game session
+    * @return whether it has been used three times
      */
     boolean isConnectionUsedThreeTimes(Connection connection, GameSession session);
 
     /**
-     * 检查电影是否已在游戏中使用
-     *
-     * @param movie   电影
-     * @param session 游戏会话
-     * @return 是否已使用
+    * Check if the movie has been used in the game
+    *
+    * @param movie movie
+    * @param session game session
+    * @return whether it has been used
      */
     boolean isMovieAlreadyUsed(Movie movie, GameSession session);
 
     /**
-     * 检查电影是否满足胜利条件
-     *
-     * @param movie     电影
-     * @param condition 胜利条件
-     * @return 是否满足条件
+    * Check if the movie meets the victory condition
+    *
+    * @param movie movie
+    * @param condition victory condition
+    * @return whether the condition is met
      */
     boolean matchesWinCondition(Movie movie, WinCondition condition);
 
     /**
-     * 注册已使用的电影
-     *
-     * @param movie   电影
-     * @param session 游戏会话
-     */
+    * Register the used movie
+    *
+    * @param movie movie
+    * @param session game session
+    */
     void registerUsedMovie(Movie movie, GameSession session);
 
     /**
-     * 注册已使用的连接
-     *
-     * @param connection 连接
-     * @param session    游戏会话
-     */
+    * Register the used connection
+    *
+    * @param connection connection
+    * @param session game session
+    */
     void registerUsedConnection(Connection connection, GameSession session);
 
     /**
-     * 初始化数据索引
-     */
+    * Initialize data index
+    */
     void initializeDataIndexes();
     
     MovieCredits getMovieCredits(int movieId);

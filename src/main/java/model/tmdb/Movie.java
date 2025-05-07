@@ -6,10 +6,10 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 /**
- * TMDB电影实体类
+ * TMDB Movie Entity Class
  */
 @Data
-@EqualsAndHashCode(of = "id") // 使用id作为唯一标识
+@EqualsAndHashCode(of = "id") // Use id as unique identifier
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Movie {
     @JsonProperty("adult")

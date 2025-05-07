@@ -6,7 +6,7 @@ import lombok.Data;
 import java.util.List;
 
 /**
- * TMDB电影列表实体类
+ * TMDB movie list entity class
  */
 @Data
 public class MovieList {

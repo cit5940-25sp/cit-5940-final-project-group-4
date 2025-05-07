@@ -8,9 +8,9 @@ import model.tmdb.Movie;
 import java.util.List;
 
 /**
- * TMDB电影服务类
- * 业务层服务，负责对接缓存服务和API服务
- */
+* TMDB movie service class
+* Business layer service, responsible for connecting cache service and API service
+*/
 @Slf4j
 public class TMDBMovieService {
     public static final int MAX_MOVIES = 10;
@@ -20,28 +20,28 @@ public class TMDBMovieService {
             ".themoviedb.org/3");
 
     /**
-     * 设置基础URL（仅用于测试）
-     */
+    * Set the base URL (for testing only)
+    */
     public static void setBaseUrl(String url) {
         baseUrl = url;
         TMDBApiService.setBaseUrl(url);
     }
 
     /**
-     * 获取前5000个最受欢迎的电影
-     *
-     * @return 电影列表
-     */
+    * Get the top 5000 most popular movies
+    *
+    * @return movie list
+    */
     public static List<Movie> getTop5000PopularMovies() {
         return TMDBMovieCacheService.getPopularMovies(MAX_MOVIES);
     }
 
     /**
-     * 获取指定数量的最受欢迎电影（仅用于测试）
-     *
-     * @param count 需要获取的电影数量
-     * @return 电影列表
-     */
+    * Get the specified number of most popular movies (for testing only)
+    *
+    * @param count The number of movies to be obtained
+    * @return Movie list
+    */
     public static List<Movie> getPopularMovies(int count) {
         return TMDBMovieCacheService.getPopularMovies(count);
     }

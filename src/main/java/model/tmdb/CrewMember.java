@@ -6,7 +6,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 /**
- * 电影剧组成员模型
+ * Movie crew models
  */
 @Data
 @EqualsAndHashCode(of = "id")

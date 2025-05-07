@@ -15,16 +15,16 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * TMDB API服务
- * 只封装TMDB的原始API请求
+* TMDB API service
+* Only encapsulates TMDB's original API request
  */
 @Slf4j
 public class TMDBApiService {
     private static final AppConfig CONFIG = AppConfig.getInstance();
 
-    // 测试模式标志
+    // Test mode flag
     private static boolean testMode = false;
-    // 测试数据
+    // Test data
     private static MovieList testMovieList;
     private static Movie testMovieDetails;
     private static MovieCredits testMovieCredits;
@@ -39,7 +39,7 @@ public class TMDBApiService {
     private static String genresUrl = baseUrl + "/genre/movie/list";
 
     /**
-     * 设置基础URL（仅用于测试）
+     * Set the base URL (for testing only)
      */
     public static void setBaseUrl(String url) {
         baseUrl = url;
@@ -51,10 +51,10 @@ public class TMDBApiService {
     }
 
     /**
-     * 设置测试模式
-     *
-     * @param isTestMode 是否为测试模式
-     * @param movieList  测试用电影列表数据
+     * Set test mode
+    *
+    * @param isTestMode Whether it is test mode
+    * @param movieList Movie list data for testing
      */
     public static void setTestMode(boolean isTestMode, MovieList movieList) {
         testMode = isTestMode;
@@ -62,10 +62,10 @@ public class TMDBApiService {
     }
 
     /**
-     * 设置测试详情数据
-     *
-     * @param movieDetails 电影详情
-     * @param movieCredits 电影演职人员
+     * Set test details data
+    *
+    * @param movieDetails movie details
+    * @param movieCredits movie cast and crew
      */
     public static void setTestDetailData(Movie movieDetails, MovieCredits movieCredits) {
         testMovieDetails = movieDetails;
@@ -73,16 +73,16 @@ public class TMDBApiService {
     }
 
     /**
-     * 发现电影API
-     *
-     * @param page   页码
-     * @param sortBy 排序方式
-     * @return 电影列表
+     * Movie discovery API
+    *
+    * @param page Page number
+    * @param sortBy Sorting method
+    * @return Movie list
      */
     public static MovieList discoverMovies(int page, String sortBy) {
-        // 测试模式下直接返回测试数据
+        // Directly return test data in test mode
         if (testMode && testMovieList != null) {
-            log.info("测试模式：返回测试数据");
+            log.info("Test mode: return test data");
             return testMovieList;
         }
 
@@ -90,7 +90,7 @@ public class TMDBApiService {
             Map<String, String> headers = new HashMap<>();
             headers.put("accept", "application/json");
 
-            // 构建带参数的URL
+            // Constructing URLs with parameters
             String url =
                     String.format("%s?include_adult=false&include_video=false&language=%s" +
                                           "&page=%d&sort_by=%s&api_key=%s", discoverMovieUrl,
@@ -100,22 +100,22 @@ public class TMDBApiService {
             String response = HttpUtil.get(url, headers);
             return HttpUtil.fromJson(response, MovieList.class);
         } catch (Exception e) {
-            log.error("获取电影列表异常", e);
+            log.error("Getting movie list exception", e);
             return null;
         }
     }
 
     /**
-     * 搜索电影API
-     *
-     * @param query 搜索关键词
-     * @param page  页码
-     * @return 电影列表
+     * Search movie API
+    *
+    * @param query Search keyword
+    * @param page Page number
+* @return Movie list
      */
     public static List<Movie> searchMovies(String query, int page) {
-        // 测试模式下直接返回测试数据
+        // Directly return test data in test mode
         if (testMode && testMovieList != null) {
-            log.info("测试模式：返回搜索测试数据");
+            log.info("Test mode: Returns search test data");
             return testMovieList.getResults();
         }
 
@@ -123,7 +123,7 @@ public class TMDBApiService {
             Map<String, String> headers = new HashMap<>();
             headers.put("accept", "application/json");
 
-            // 构建带参数的URL
+            // Constructing URLs with parameters
             String url = String.format("%s?query=%s&include_adult=false&language=%s&page=%d" +
                                                "&api_key=%s", searchMovieUrl,
                                        HttpUtil.urlEncode(query), CONFIG.getProperty("tmdb.api.language", "en-US"), page, CONFIG.getProperty("tmdb.api.key"));
@@ -132,21 +132,21 @@ public class TMDBApiService {
             MovieList movieList = HttpUtil.fromJson(response, MovieList.class);
             return movieList != null ? movieList.getResults() : Collections.emptyList();
         } catch (Exception e) {
-            log.error("搜索电影异常", e);
+            log.error("Search movie exception", e);
             return Collections.emptyList();
         }
     }
 
     /**
-     * 获取电影详情API
-     *
-     * @param movieId 电影ID
-     * @return 电影详情
+     * Get movie details API
+    *
+    * @param movieId movie ID
+    * @return movie details
      */
     public static Movie getMovieDetails(int movieId) {
-        // 测试模式下直接返回测试数据
+        // Directly return test data in test mode
         if (testMode && testMovieDetails != null) {
-            log.info("测试模式：返回电影详情测试数据");
+            log.info("Test mode: Return movie details test data");
             return testMovieDetails;
         }
 
@@ -154,7 +154,7 @@ public class TMDBApiService {
             Map<String, String> headers = new HashMap<>();
             headers.put("accept", "application/json");
 
-            // 构建URL
+            
             String url = String.format(movieDetailsUrl + "?language=%s&api_key=%s", movieId,
                                        CONFIG.getProperty("tmdb.api.language", "en-US"),
                                        CONFIG.getProperty("tmdb.api.key"));
@@ -162,21 +162,21 @@ public class TMDBApiService {
             String response = HttpUtil.get(url, headers);
             return HttpUtil.fromJson(response, Movie.class);
         } catch (Exception e) {
-            log.error("获取电影详情异常", e);
+            log.error("Exception in getting movie details", e);
             return null;
         }
     }
 
     /**
-     * 获取电影演职人员API
-     *
-     * @param movieId 电影ID
-     * @return 电影演职人员
-     */
+    * Get movie cast API
+    *
+    * @param movieId movie ID
+    * @return movie cast
+    */
     public static MovieCredits getMovieCredits(int movieId) {
-        // 测试模式下直接返回测试数据
+        
         if (testMode && testMovieCredits != null) {
-            log.info("测试模式：返回电影演职人员测试数据");
+            log.info("Test mode: Returns movie cast and crew test data");
             return testMovieCredits;
         }
 
@@ -184,7 +184,6 @@ public class TMDBApiService {
             Map<String, String> headers = new HashMap<>();
             headers.put("accept", "application/json");
 
-            // 构建URL
             String url = String.format(movieCreditsUrl + "?language=%s&api_key=%s", movieId,
                                        CONFIG.getProperty("tmdb.api.language", "en-US"),
                                        CONFIG.getProperty("tmdb.api.key"));
@@ -192,22 +191,21 @@ public class TMDBApiService {
             String response = HttpUtil.get(url, headers);
             return HttpUtil.fromJson(response, MovieCredits.class);
         } catch (Exception e) {
-            log.error("获取电影演职人员异常", e);
+            log.error("Get movie cast and crew exception", e);
             return null;
         }
     }
 
     /**
-     * 获取电影类型列表API
-     *
-     * @return 电影类型列表
-     */
+    * Get the movie type list API
+    *
+    * @return movie type list
+    */
     public static List<Genre> getMovieGenres() {
         try {
             Map<String, String> headers = new HashMap<>();
             headers.put("accept", "application/json");
 
-            // 构建URL
             String url = String.format("%s?language=%s&api_key=%s", genresUrl,
                                        CONFIG.getProperty("tmdb.api.language", "en-US"),
                                        CONFIG.getProperty("tmdb.api.key"));
@@ -216,7 +214,7 @@ public class TMDBApiService {
             GenreList genreList = HttpUtil.fromJson(response, GenreList.class);
             return genreList != null ? genreList.getGenres() : Collections.emptyList();
         } catch (Exception e) {
-            log.error("获取电影类型列表异常", e);
+            log.error("Exception when getting movie type list", e);
             return Collections.emptyList();
         }
     }

@@ -10,33 +10,33 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * TMDB Token服务类
+ * TMDB Token Services
  */
 @Slf4j
 public class TmdbTokenService {
     private static final String TMDB_API_KEY = "b66be751fa2a2b0abc87f18e1767150d";
     private static final String TMDB_ACCESS_TOKEN = "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJiNjZiZTc1MWZhMmEyYjBhYmM4N2YxOGUxNzY3MTUwZCIsIm5iZiI6MTc0Mzk0MzQxMi4wMzAwMDAyLCJzdWIiOiI2N2YyNzZmNDJmN2Q0MzcwMjc5OWQ2ZjIiLCJzY29wZXMiOlsiYXBpX3JlYWQiXSwidmVyc2lvbiI6MX0.kVps53qR3qYXbmakBAH4XVd0QIJdmMvBHLMBUgoH_3o";
     /**
-     * -- GETTER --
-     * 获取基础URL
-     */
+    * -- GETTER --
+    * Get the base URL
+    */
     @Getter
     private static String baseUrl = "https://api.themoviedb.org/3";
     private static String authUrl = baseUrl + "/authentication/token/new";
 
     /**
-     * 设置基础URL（仅用于测试）
-     */
+    * Set the base URL (for testing only)
+    */
     public static void setBaseUrl(String url) {
         baseUrl = url;
         authUrl = baseUrl + "/authentication/token/new";
     }
 
     /**
-     * 获取TMDB请求token
-     *
-     * @return 请求token
-     */
+    * Get TMDB request token
+    *
+    * @return request token
+    */
     public static String getRequestToken() {
         try {
             Map<String, String> headers = new HashMap<>();
@@ -49,10 +49,10 @@ public class TmdbTokenService {
             if (tokenResponse != null && tokenResponse.isSuccess()) {
                 return tokenResponse.getRequestToken();
             }
-            log.error("获取TMDB请求token失败: {}", response);
+            log.error("Failed to obtain TMDB request token: {}", response);
             return null;
         } catch (Exception e) {
-            log.error("获取TMDB请求token异常", e);
+            log.error("Exception in obtaining TMDB request token", e);
             return null;
         }
     }

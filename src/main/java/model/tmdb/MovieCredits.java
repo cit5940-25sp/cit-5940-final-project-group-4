@@ -7,7 +7,7 @@ import lombok.Data;
 import java.util.List;
 
 /**
- * 电影演职人员信息
+ * Movie cast and crew information
  */
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)

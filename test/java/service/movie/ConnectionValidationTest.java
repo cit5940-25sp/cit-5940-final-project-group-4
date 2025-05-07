@@ -18,8 +18,8 @@ import java.util.List;
 import static org.junit.Assert.*;
 
 /**
- * 电影连接验证测试类
- * 专注于测试电影之间的连接关系验证
+* Movie connection verification test class
+* Focus on testing the connection relationship verification between movies
  */
 @Slf4j
 public class ConnectionValidationTest {
@@ -34,7 +34,6 @@ public class ConnectionValidationTest {
   @Before
   public void setUp() {
     try {
-      // 重置单例
       java.lang.reflect.Field instance = MovieIndexService.class.getDeclaredField("instance");
       instance.setAccessible(true);
       instance.set(null, null);
@@ -43,24 +42,21 @@ public class ConnectionValidationTest {
       instance.setAccessible(true);
       instance.set(null, null);
 
-      // 设置测试模式
       MovieDataServiceImpl.setTestMode(true);
       TMDBMovieCacheService.setCache("test_cache");
       TMDBMovieCacheService.setTestMode(true);
 
-      // 获取服务实例
       indexService = MovieIndexService.getInstance();
       dataService = MovieDataServiceImpl.getInstance();
 
-      // 创建测试电影数据
       testMovies = createTestMovies();
       movie1 = testMovies.get(0);
       movie2 = testMovies.get(1);
       movie3 = testMovies.get(2);
 
-      // 创建演职人员数据
-      // movie1和movie2有共同演员"Actor 1"
-      // movie2和movie3有共同导演"Director 2"
+       // Create cast and crew data
+       // movie1 and movie2 have a common actor "Actor 1"
+       // movie2 and movie3 have a common director "Director 2"
       credits1 = createMovieCredits(1, new int[] { 101, 102 }, new String[] { "Actor 1", "Actor 2" },
           new int[] { 201 }, new String[] { "Director 1" });
 
@@ -70,126 +66,106 @@ public class ConnectionValidationTest {
       credits3 = createMovieCredits(3, new int[] { 104, 105 }, new String[] { "Actor 4", "Actor 5" },
           new int[] { 202 }, new String[] { "Director 2" });
 
-      // 初始化索引
       indexService.initializeIndexes(testMovies);
       indexService.indexMovieCredits(1, credits1);
       indexService.indexMovieCredits(2, credits2);
       indexService.indexMovieCredits(3, credits3);
 
-      // 创建测试会话
       testSession = new GameSession("test-session", movie1);
 
     } catch (Exception e) {
-      log.error("设置测试环境失败", e);
+      log.error("Failed to set up the test environment", e);
     }
   }
 
   @Test
   public void testValidateConnection_WithCommonActor() {
-    // 测试有共同演员的电影连接验证
     boolean isValid = dataService.validateConnection(movie1, movie2);
 
-    // 应该为true，因为movie1和movie2有共同演员"Actor 1"
+    // Should be true, because movie1 and movie2 have a common actor "Actor 1"
     assertTrue(isValid);
   }
 
   @Test
   public void testValidateConnection_WithCommonDirector() {
-    // 测试有共同导演的电影连接验证
     boolean isValid = dataService.validateConnection(movie2, movie3);
 
-    // 应该为true，因为movie2和movie3有共同导演"Director 2"
+    // Should be true, because movie2 and movie3 have the same director "Director 2"
     assertTrue(isValid);
   }
 
   @Test
   public void testValidateConnection_WithNoCommonPerson() {
-    // 测试没有共同演职人员的电影连接验证
     boolean isValid = dataService.validateConnection(movie1, movie3);
 
-    // 应该为false，因为movie1和movie3没有共同演职人员
+    // Should be false, because movie1 and movie3 have no co-stars
     assertFalse(isValid);
   }
 
   @Test
   public void testGetConnections_WithCommonActor() {
-    // 测试获取共同演员连接
     List<Connection> connections = dataService.getConnections(movie1, movie2);
 
-    // 验证结果
     assertNotNull(connections);
     assertTrue(connections.size() > 0);
 
-    // 验证连接类型和值
     boolean foundActorConnection = false;
     for (Connection connection : connections) {
-      if ("演员".equals(connection.getConnectionType()) && "Actor 1".equals(connection.getConnectionValue())) {
+      if ("actor".equals(connection.getConnectionType()) && "Actor 1".equals(connection.getConnectionValue())) {
         foundActorConnection = true;
         break;
       }
     }
-    assertTrue("未找到共同演员连接", foundActorConnection);
+    assertTrue("No co-actor connections found", foundActorConnection);
   }
 
   @Test
   public void testGetConnections_WithCommonDirector() {
-    // 测试获取共同导演连接
     List<Connection> connections = dataService.getConnections(movie2, movie3);
 
-    // 验证结果
     assertNotNull(connections);
     assertTrue(connections.size() > 0);
 
-    // 验证连接类型和值
     boolean foundDirectorConnection = false;
     for (Connection connection : connections) {
-      if ("导演".equals(connection.getConnectionType()) && "Director 2".equals(connection.getConnectionValue())) {
+      if ("director".equals(connection.getConnectionType()) && "Director 2".equals(connection.getConnectionValue())) {
         foundDirectorConnection = true;
         break;
       }
     }
-    assertTrue("未找到共同导演连接", foundDirectorConnection);
+    assertTrue("No co-director connection found", foundDirectorConnection);
   }
 
   @Test
   public void testGetConnections_WithNoCommonPerson() {
-    // 测试获取没有共同演职人员的连接
     List<Connection> connections = dataService.getConnections(movie1, movie3);
-
-    // 验证结果
     assertNotNull(connections);
     assertEquals(0, connections.size());
   }
 
   @Test
   public void testConnectionUsage() {
-    // 获取movie1和movie2之间的连接
     List<Connection> connections = dataService.getConnections(movie1, movie2);
     assertNotNull(connections);
     assertTrue(connections.size() > 0);
 
-    // 获取第一个连接
     Connection connection = connections.get(0);
 
-    // 初始状态应该是未使用三次
     assertFalse(dataService.isConnectionUsedThreeTimes(connection, testSession));
 
-    // 使用连接三次
     for (int i = 0; i < 3; i++) {
       dataService.registerUsedConnection(connection, testSession);
     }
 
-    // 现在应该是已使用三次
     assertTrue(dataService.isConnectionUsedThreeTimes(connection, testSession));
   }
 
   /**
-   * 创建测试电影数据
+   * Creating test movie data
    */
   private List<Movie> createTestMovies() {
     List<Movie> movies = new ArrayList<>();
 
-    // 创建三部测试电影
     Movie movie1 = new Movie();
     movie1.setId(1);
     movie1.setTitle("Movie 1");
@@ -231,21 +207,20 @@ public class ConnectionValidationTest {
   }
 
   /**
-   * 创建电影演职人员数据
-   * 
-   * @param movieId       电影ID
-   * @param actorIds      演员ID数组
-   * @param actorNames    演员名称数组
-   * @param directorIds   导演ID数组
-   * @param directorNames 导演名称数组
-   * @return 电影演职人员信息
-   */
+  * Create movie cast data
+  *
+  * @param movieId movie ID
+  * @param actorIds actor ID array
+  * @param actorNames actor name array
+  * @param directorIds director ID array
+  * @param directorNames director name array
+  * @return movie cast information
+  */
   private MovieCredits createMovieCredits(int movieId, int[] actorIds, String[] actorNames,
       int[] directorIds, String[] directorNames) {
     MovieCredits credits = new MovieCredits();
     credits.setId(movieId);
 
-    // 创建演员列表
     List<CastMember> castList = new ArrayList<>();
     for (int i = 0; i < actorIds.length; i++) {
       CastMember cast = new CastMember();
@@ -257,7 +232,6 @@ public class ConnectionValidationTest {
     }
     credits.setCast(castList);
 
-    // 创建剧组成员列表
     List<CrewMember> crewList = new ArrayList<>();
     for (int i = 0; i < directorIds.length; i++) {
       CrewMember crew = new CrewMember();

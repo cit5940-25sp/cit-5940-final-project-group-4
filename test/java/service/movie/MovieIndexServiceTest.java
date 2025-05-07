@@ -8,14 +8,12 @@ import model.tmdb.MovieCredits;
 import org.junit.Before;
 import org.junit.Test;
 import service.tmdbApi.TMDBApiService;
-
 import java.util.ArrayList;
 import java.util.List;
-
 import static org.junit.Assert.*;
 
 /**
- * 电影索引服务测试类
+ * Movie index service test class
  */
 @Slf4j
 public class MovieIndexServiceTest {
@@ -26,41 +24,35 @@ public class MovieIndexServiceTest {
 
   @Before
   public void setUp() {
-    // 重置单例
     try {
       java.lang.reflect.Field instance = MovieIndexService.class.getDeclaredField("instance");
       instance.setAccessible(true);
       instance.set(null, null);
     } catch (Exception e) {
-      log.error("重置单例失败", e);
+      log.error("Failed to reset singleton", e);
     }
 
-    // 获取索引服务实例
     indexService = MovieIndexService.getInstance();
 
-    // 创建测试电影数据
     testMovies = createTestMovies();
 
-    // 创建测试演职人员数据
     testCredits = createTestCredits();
 
-    // 初始化索引
     indexService.initializeIndexes(testMovies);
 
-    // 为第一部电影添加演职人员索引
     indexService.indexMovieCredits(1, testCredits);
   }
 
   @Test
   public void testSearchByPrefix() {
-    // 测试前缀搜索功能
+    // Testing the prefix search function
     List<Movie> results = indexService.searchByPrefix("mov");
 
-    // 验证结果
+    // Verify the results
     assertNotNull(results);
     assertEquals(3, results.size());
 
-    // 验证排序（按人气降序）
+    //Verify sorting (in descending order of popularity）
     assertEquals(1, results.get(0).getId());
     assertEquals(2, results.get(1).getId());
     assertEquals(3, results.get(2).getId());
@@ -68,30 +60,24 @@ public class MovieIndexServiceTest {
 
   @Test
   public void testSearchByPrefixWithLowerCase() {
-    // 测试小写前缀搜索
     List<Movie> results = indexService.searchByPrefix("MOV");
 
-    // 验证结果
     assertNotNull(results);
     assertEquals(3, results.size());
   }
 
   @Test
   public void testSearchByPrefixWithEmptyPrefix() {
-    // 测试空前缀
     List<Movie> results = indexService.searchByPrefix("");
 
-    // 验证结果
     assertNotNull(results);
     assertEquals(0, results.size());
   }
 
   @Test
   public void testGetMovieById() {
-    // 测试按ID获取电影
     Movie movie = indexService.getMovieById(1);
 
-    // 验证结果
     assertNotNull(movie);
     assertEquals(1, movie.getId());
     assertEquals("Movie 1", movie.getTitle());
@@ -99,20 +85,12 @@ public class MovieIndexServiceTest {
 
   @Test
   public void testGetMovieByIdWithNonExistingId() {
-    // 测试获取不存在的电影ID
-    // 注意：这里假设999是一个不存在的ID，实际测试可能需要调整
     Movie movie = indexService.getMovieById(999);
-
-    // 由于我们不使用mock，这里的行为取决于实际实现
-    // 如果TMDBApiService在找不到电影时返回null，则结果应为null
   }
 
   @Test
   public void testGetMovieCredits() {
-    // 测试获取电影演职人员
     MovieCredits credits = indexService.getMovieCredits(1);
-
-    // 验证结果
     assertNotNull(credits);
     assertEquals(1, credits.getId());
     assertEquals(2, credits.getCast().size());
@@ -121,10 +99,8 @@ public class MovieIndexServiceTest {
 
   @Test
   public void testGetMoviesByActor() {
-    // 测试根据演员获取电影列表
     List<Movie> movies = indexService.getMoviesByActor(101);
 
-    // 验证结果
     assertNotNull(movies);
     assertEquals(1, movies.size());
     assertEquals(1, movies.get(0).getId());
@@ -132,10 +108,8 @@ public class MovieIndexServiceTest {
 
   @Test
   public void testGetMoviesByDirector() {
-    // 测试根据导演获取电影列表
     List<Movie> movies = indexService.getMoviesByDirector(201);
 
-    // 验证结果
     assertNotNull(movies);
     assertEquals(1, movies.size());
     assertEquals(1, movies.get(0).getId());
@@ -143,44 +117,34 @@ public class MovieIndexServiceTest {
 
   @Test
   public void testGetActorIdByName() {
-    // 测试根据演员名称获取ID
     Integer actorId = indexService.getActorIdByName("Actor 1");
 
-    // 验证结果
     assertNotNull(actorId);
     assertEquals(Integer.valueOf(101), actorId);
   }
 
   @Test
   public void testGetDirectorIdByName() {
-    // 测试根据导演名称获取ID
     Integer directorId = indexService.getDirectorIdByName("Director 1");
 
-    // 验证结果
     assertNotNull(directorId);
     assertEquals(Integer.valueOf(201), directorId);
   }
 
   @Test
   public void testClearIndexes() {
-    // 测试清空索引
     indexService.clearIndexes();
 
-    // 验证结果
     List<Movie> results = indexService.searchByPrefix("mov");
     assertEquals(0, results.size());
-
-    // 因为我们没有使用mock，所以这个测试可能会尝试调用真实的API
-    // 因此我们不测试清空后的getMovieById行为
   }
 
   /**
-   * 创建测试电影数据
+   * Creating test movie data
    */
   private List<Movie> createTestMovies() {
     List<Movie> movies = new ArrayList<>();
 
-    // 创建三部测试电影
     Movie movie1 = new Movie();
     movie1.setId(1);
     movie1.setTitle("Movie 1");
@@ -222,13 +186,12 @@ public class MovieIndexServiceTest {
   }
 
   /**
-   * 创建测试演职人员数据
+   * Creating Test Cast Data
    */
   private MovieCredits createTestCredits() {
     MovieCredits credits = new MovieCredits();
     credits.setId(1);
 
-    // 创建演员列表
     List<CastMember> castList = new ArrayList<>();
 
     CastMember cast1 = new CastMember();
@@ -247,7 +210,6 @@ public class MovieIndexServiceTest {
     castList.add(cast2);
     credits.setCast(castList);
 
-    // 创建剧组成员列表
     List<CrewMember> crewList = new ArrayList<>();
 
     CrewMember crew1 = new CrewMember();

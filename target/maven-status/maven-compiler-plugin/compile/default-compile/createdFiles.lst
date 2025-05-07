@@ -23,5 +23,4 @@ model/tmdb/Movie.class
 model/game/HistoryRecord.class
 model/tmdb/MovieCredits.class
 config/AppConfig.class
-view/GameTurnResult.class
 utils/HttpUtil.class

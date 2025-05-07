@@ -20,7 +20,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 /**
- * TMDB电影服务测试类
+ * TMDB Movie Service Test Category
  */
 @Slf4j
 public class TMDBMovieServiceTest {
@@ -34,7 +34,6 @@ public class TMDBMovieServiceTest {
         originalBaseUrl = TMDBMovieService.getBaseUrl();
         TMDBMovieService.setBaseUrl("http://" + mockWebServer.getHostName() + ":" + mockWebServer.getPort());
 
-        // 设置测试缓存目录
         TMDBMovieCacheService.setCache("test_cache");
     }
 
@@ -46,43 +45,35 @@ public class TMDBMovieServiceTest {
 
     @Test
     public void testGetPopularMovies() throws Exception {
-        // 创建测试用的电影列表
         List<Movie> moviesList = createTestMovies();
 
-        // 创建MovieList对象
         MovieList movieList = new MovieList();
         movieList.setPage(1);
         movieList.setResults(moviesList);
         movieList.setTotalPages(1);
         movieList.setTotalResults(moviesList.size());
 
-        // 设置API服务使用测试模式
         TMDBApiService.setTestMode(true, movieList);
 
-        // 执行请求 - 使用getPopularMovies方法
         List<Movie> movies = TMDBMovieService.getPopularMovies(3);
 
-        // 打印实际情况进行调试
         if (movies != null && !movies.isEmpty()) {
-            log.error("实际返回电影数量: {}", movies.size());
+            log.error("The actual number of movies returned: {}", movies.size());
             for (Movie movie : movies) {
-                log.error("电影ID: {}, 标题: {}, 人气值: {}", movie.getId(), movie.getTitle(),
+                log.error("Movie ID: {}, Title: {}, Popularity: {}", movie.getId(), movie.getTitle(),
                           movie.getPopularity());
             }
         }
 
-        // 验证结果
         assertNotNull(movies);
         assertEquals(3, movies.size());
 
-        // 验证第一部电影
         Movie firstMovie = movies.get(0);
         assertEquals(1, firstMovie.getId());
         assertEquals("Movie 1", firstMovie.getTitle());
         assertEquals(8.5, firstMovie.getVoteAverage(), 0.001);
         assertEquals(100.0, firstMovie.getPopularity(), 0.001);
 
-        // 验证第三部电影
         Movie lastMovie = movies.get(2);
         assertEquals(3, lastMovie.getId());
         assertEquals("Movie 3", lastMovie.getTitle());
@@ -91,12 +82,11 @@ public class TMDBMovieServiceTest {
     }
 
     /**
-     * 创建测试用的电影列表
+     * Create a list of movies for testing
      */
     private List<Movie> createTestMovies() {
         List<Movie> movies = new ArrayList<>();
 
-        // 创建三部测试电影
         Movie movie1 = new Movie();
         movie1.setId(1);
         movie1.setTitle("Movie 1");

@@ -1,33 +1,26 @@
 package model.game;
 
 import lombok.Data;
-//import model.tmdb.Genre;
-//import model.tmdb.Movie;
-//import service.movie.MovieGenreService;
-//
-//import java.util.Arrays;
-//import java.util.List;
-
 
 /**
- * 胜利条件模型
+ * Victory Condition Model
  */
 @Data
 public class WinCondition {
-    // 条件类型（电影类型、演员、导演等）
+    // Condition type (movie genre, actor, director, etc.)
     private String conditionType;
 
-    // 条件值（具体类型、演员名、导演名等）
+    // Conditional value (specific type, actor name, director name, etc.)
     private String conditionValue;
 
-    // 目标次数（需要多少次达成条件）
+    // Target times (how many times are needed to achieve the condition)）
     private int targetCount;
 
-    // 当前进度
+    // Current progress
     private int currentCount;
 
     /**
-     * 构造函数
+     * Constructor
      */
     public WinCondition(String conditionType, String conditionValue, int targetCount) {
         this.conditionType = conditionType;
@@ -37,24 +30,28 @@ public class WinCondition {
     }
 
     /**
-     * 构造函数（默认目标次数为1）
+     * Constructor (default target count is 1)
      */
     public WinCondition(String conditionType, String conditionValue) {
         this(conditionType, conditionValue, 1);
     }
 
     /**
-     * 增加当前进度
+     * Increase current progress
      */
     public void incrementProgress() {
         this.currentCount++;
     }
 
     /**
-     * 检查是否已达成胜利条件
+     * Check if victory conditions have been met
      */
     public boolean isAchieved() {
         return this.currentCount >= this.targetCount;
+    }
+    
+    public String getConditionValue() {
+        return this.conditionValue;
     }
 
 }

@@ -12,93 +12,92 @@ import java.util.List;
 import static org.junit.Assert.*;
 
 /**
- * TMDB电影服务集成测试
- * 测试整个服务链路，包括API调用、缓存、多线程等功能
+* TMDB movie service integration test
+* Test the entire service chain, including API calls, caching, multi-threading and other functions
  */
 @Slf4j
 public class TMDBMovieIntegrationTest {
-    private static final int DEMO_MOVIE_COUNT = 20; // 演示用，只获取20部电影
+    private static final int DEMO_MOVIE_COUNT = 20; 
 
     @Test
     public void testCompleteFlow() {
-        log.info("开始测试完整流程...");
+        log.info("Start testing the complete process...");
 
-        // 第一次获取（从API获取并缓存）
+        // First acquisition (acquired from API and cached)
         Instant start = Instant.now();
         List<Movie> movies = TMDBMovieService.getTop5000PopularMovies();
         Duration duration = Duration.between(start, Instant.now());
 
-        // 验证第一次获取结果
-        assertNotNull("返回的电影列表不应为空", movies);
-        assertFalse("应该返回电影数据", movies.isEmpty());
-        log.info("第一次获取完成！耗时：{}秒，共获取到 {} 部电影", duration.getSeconds(), movies.size());
+        // Verify the first acquisition result
+        assertNotNull("The returned list of movies should not be empty", movies);
+        assertFalse("Should return movie data", movies.isEmpty());
+        log.info("The first acquisition is complete! Time taken: {} seconds, a total of {} movies were acquired", duration.getSeconds(), movies.size());
 
-        // 打印部分电影信息
         printTopMovies(movies, DEMO_MOVIE_COUNT);
 
-        // 第二次获取（从缓存读取）
-        log.info("\n开始第二次获取（应该从缓存读取）...");
+        // Second fetch (read from cache)
+        log.info("\nStart second fetch (should read from cache）...");
         start = Instant.now();
         List<Movie> cachedMovies = TMDBMovieService.getTop5000PopularMovies();
         duration = Duration.between(start, Instant.now());
 
-        // 验证第二次获取结果
-        assertNotNull("缓存的电影列表不应为空", cachedMovies);
-        assertEquals("缓存应该返回相同数量的电影", movies.size(), cachedMovies.size());
-        assertTrue("从缓存读取应该更快", duration.getSeconds() < 1);
-        log.info("第二次获取完成！耗时：{}秒，共获取到 {} 部电影", duration.getSeconds(), cachedMovies.size());
+        // Verify the second acquisition result
+        assertNotNull("The cached movie list should not be empty", cachedMovies);
+        assertEquals("The cache should return the same number of movies", movies.size(), cachedMovies.size());
+        assertTrue("Reading from cache should be faster", duration.getSeconds() < 1);
+        log.info("The second acquisition is complete! Time taken: {} seconds, a total of {} movies were acquired", duration.getSeconds(), cachedMovies.size());
 
-        // 验证电影数据的完整性
+        // Verify the integrity of movie data
         validateMovieData(movies);
     }
 
     @Test
     public void testPerformance() {
-        log.info("开始性能测试...");
+        log.info("Starting performance testing...");
 
-        // 预热缓存
+        // Pre-warming the cache
         TMDBMovieService.getTop5000PopularMovies();
 
-        // 测试10次缓存读取性能
+        // Test cache read performance 10 times
         for (int i = 0; i < 10; i++) {
             Instant start = Instant.now();
             List<Movie> movies = TMDBMovieService.getTop5000PopularMovies();
             Duration duration = Duration.between(start, Instant.now());
 
-            assertNotNull("返回的电影列表不应为空", movies);
-            assertTrue("缓存读取应该很快", duration.toMillis() < 1000);
-            log.info("第{}次读取耗时：{}毫秒", i + 1, duration.toMillis());
+            assertNotNull("The returned list of movies should not be empty", movies);
+            assertTrue("Cache reads should be fast", duration.toMillis() < 1000);
+            log.info("The {}th read took: {} milliseconds", i + 1, duration.toMillis());
         }
     }
 
     /**
-     * 验证电影数据的完整性
+     * Verify the integrity of movie data
      */
     private void validateMovieData(List<Movie> movies) {
         movies.forEach(movie -> {
-            assertNotNull("电影ID不应为空", movie.getId());
-            assertNotNull("电影标题不应为空", movie.getTitle());
-            assertTrue("电影人气值应大于0", movie.getPopularity() > 0);
-            assertTrue("电影评分应在0-10之间", movie.getVoteAverage() >= 0 && movie.getVoteAverage() <= 10);
-            assertTrue("评分数量应大于等于0", movie.getVoteCount() >= 0);
+            assertNotNull("Movie ID should not be empty", movie.getId());
+            assertNotNull("Movie title should not be empty", movie.getTitle());
+            assertTrue("Movie popularity value should be greater than 0", movie.getPopularity() > 0);
+            assertTrue("Movie ratings should be between 0-10", movie.getVoteAverage() >= 0 && movie.getVoteAverage() <= 10);
+            assertTrue("The number of ratings should be greater than or equal to 0", movie.getVoteCount() >= 0);
         });
     }
 
     /**
-     * 打印电影信息
+     * Print movie information
      */
     private void printTopMovies(List<Movie> movies, int count) {
-        log.info("\n前{}部电影信息：", count);
+        log.info("\\nPrevious {} movie information：", count);
         int limit = Math.min(count, movies.size());
         for (int i = 0; i < limit; i++) {
             Movie movie = movies.get(i);
-            log.info("\n电影 #{}", i + 1);
+            log.info("\nMovie #{}", i + 1);
             log.info("ID: {}", movie.getId());
-            log.info("标题: {}", movie.getTitle());
-            log.info("人气: {}", movie.getPopularity());
-            log.info("评分: {} ({} 个评分)", movie.getVoteAverage(), movie.getVoteCount());
-            log.info("上映日期: {}", movie.getReleaseDate());
-            log.info("简介: {}", movie.getOverview());
+            log.info("title: {}", movie.getTitle());
+            log.info("Popularity: {}", movie.getPopularity());
+            log.info("score: {} ({} Ratings)", movie.getVoteAverage(), movie.getVoteCount());
+            log.info("Release Date: {}", movie.getReleaseDate());
+            log.info("Introduction: {}", movie.getOverview());
         }
     }
 }

@@ -4,29 +4,29 @@ import lombok.Data;
 import model.tmdb.Movie;
 
 /**
- * 电影连接模型
- * 表示两部电影之间的共通关系（演员、导演等）
+ * Movie connection model
+ * Indicates the common relationship between two movies (actors, directors, etc.)
  */
 @Data
 public class Connection {
-    // 连接的两部电影
+    // Two movies connected
     private Movie movie1;
     private Movie movie2;
 
-    // 连接类型（演员、导演、编剧等）
+    // Type of connection (actor, director, screenwriter, etc.)
     private String connectionType;
 
-    // 连接值（演员名、导演名等）
+    // Connection value (actor name, director name, etc.)
     private String connectionValue;
 
-    // 连接使用次数
+    // Connection usage times
     private int usageCount;
 
-    // 连接人员ID
+    // Connector ID
     private int personId;
 
     /**
-     * 构造函数
+     * Constructor
      */
     public Connection(Movie movie1, Movie movie2, String connectionType, String connectionValue,
                       int personId) {
@@ -39,14 +39,14 @@ public class Connection {
     }
 
     /**
-     * 增加使用次数
+     * Increase the number of times used
      */
     public void incrementUsage() {
         this.usageCount++;
     }
 
     /**
-     * 检查是否已达到最大使用次数（3次）
+     * Check if the maximum number of uses (3 times) has been reached
      */
     public boolean isMaxUsed() {
         return this.usageCount >= 3;

@@ -21,23 +21,21 @@ import java.util.List;
 import static org.junit.Assert.*;
 
 /**
- * TMDB电影缓存服务测试类
+ * TMDB movie cache service test class
  */
 @Slf4j
 public class TMDBMovieCacheServiceTest {
     private static final String TEST_CACHE_DIR = "test_cache";
     private static final String TEST_CACHE_FILE = TEST_CACHE_DIR + "/popular_movies.json";
     private static final String TEST_LAST_UPDATE_FILE = TEST_CACHE_DIR + "/last_update.txt";
-    private static final int TEST_MOVIE_COUNT = 20; // 测试时获取20部电影
+    private static final int TEST_MOVIE_COUNT = 20; // Get 20 movies during testing
 
     @Before
     public void setUp() throws IOException {
-        // 设置测试缓存目录
         TMDBMovieCacheService.setCache(TEST_CACHE_DIR);
-        // 清理测试缓存目录
         cleanTestCacheDir();
 
-        // 默认设置测试模式为false，不使用测试数据
+        // By default, the test mode is set to false and no test data is used.
         TMDBApiService.setTestMode(false, null);
     }
 
@@ -56,14 +54,14 @@ public class TMDBMovieCacheServiceTest {
                         try {
                             Files.delete(path);
                         } catch (IOException e) {
-                            log.error("删除测试缓存文件失败: {}", path, e);
+                            log.error("Failed to delete test cache files: {}", path, e);
                         }
                     });
         }
     }
 
     /**
-     * 创建测试用的电影列表
+     * Create a list of movies for testing
      */
     private MovieList createTestMovieList(int count) {
         List<Movie> movies = new ArrayList<>();
@@ -92,17 +90,13 @@ public class TMDBMovieCacheServiceTest {
 
     @Test
     public void testFirstTimeDataFetch() throws Exception {
-        // 创建测试数据
         MovieList movieList = createTestMovieList(TEST_MOVIE_COUNT);
         TMDBApiService.setTestMode(true, movieList);
 
-        // 创建缓存目录（测试模式下不会自动创建）
         Files.createDirectories(Paths.get(TEST_CACHE_DIR));
 
-        // 执行测试
         List<Movie> movies = TMDBMovieCacheService.getPopularMovies(TEST_MOVIE_COUNT);
 
-        // 手动创建缓存文件，模拟缓存写入
         String json = new com.fasterxml.jackson.databind.ObjectMapper().writeValueAsString(movies);
         Files.write(Paths.get(TEST_CACHE_FILE), json.getBytes(StandardCharsets.UTF_8));
         Files.write(Paths.get(TEST_LAST_UPDATE_FILE), LocalDateTime
@@ -110,23 +104,21 @@ public class TMDBMovieCacheServiceTest {
                 .toString()
                 .getBytes(StandardCharsets.UTF_8));
 
-        // 验证结果
-        assertNotNull("返回的电影列表不应为空", movies);
-        assertEquals("应该返回指定数量的电影", TEST_MOVIE_COUNT, movies.size());
-        assertTrue("应该创建缓存文件", Files.exists(Paths.get(TEST_CACHE_FILE)));
-        assertTrue("应该创建最后更新时间文件", Files.exists(Paths.get(TEST_LAST_UPDATE_FILE)));
+        assertNotNull("The returned list of movies should not be empty", movies);
+        assertEquals("Should return the specified number of movies", TEST_MOVIE_COUNT, movies.size());
+        assertTrue("A cache file should be created", Files.exists(Paths.get(TEST_CACHE_FILE)));
+        assertTrue("A last updated time file should be created", Files.exists(Paths.get(TEST_LAST_UPDATE_FILE)));
 
-        // 验证电影数据的完整性
+        // Verify the integrity of movie data
         movies.forEach(movie -> {
-            assertNotNull("电影ID不应为空", movie.getId());
-            assertNotNull("电影标题不应为空", movie.getTitle());
-            assertTrue("电影人气值应大于0", movie.getPopularity() > 0);
+            assertNotNull("Movie ID should not be empty", movie.getId());
+            assertNotNull("Movie title should not be empty", movie.getTitle());
+            assertTrue("Movie popularity value should be greater than 0", movie.getPopularity() > 0);
         });
     }
 
     @Test
     public void testCacheReading() throws Exception {
-        // 准备缓存数据
         String cachedData = "[{\"id\":1,\"title\":\"Cached Movie 1\",\"popularity\":100.0," +
                 "\"vote_average\":8.5}," + "{\"id\":2,\"title\":\"Cached Movie 2\"," +
                 "\"popularity\":90.0,\"vote_average\":8.0}]";
@@ -137,7 +129,6 @@ public class TMDBMovieCacheServiceTest {
                 .toString()
                 .getBytes(StandardCharsets.UTF_8));
 
-        // 创建测试数据
         Movie movie = new Movie();
         movie.setId(1);
         movie.setTitle("Cached Movie 1");
@@ -155,23 +146,22 @@ public class TMDBMovieCacheServiceTest {
 
         TMDBApiService.setTestMode(true, movieList);
 
-        // 设置测试模式 - 禁用缓存
+        // Setting up test mode - disabling caching
         TMDBMovieCacheService.setTestMode(false);
 
-        // 执行测试 - 请求1部电影
+        // Execute Test - Request 1 Movie
         List<Movie> movies = TMDBMovieCacheService.getPopularMovies(1);
 
-        // 验证结果
-        assertNotNull("返回的电影列表不应为空", movies);
-        assertEquals("应该只返回1部电影", 1, movies.size());
-        assertEquals("应该返回人气最高的电影", "Cached Movie 1", movies
+        assertNotNull("The returned list of movies should not be empty", movies);
+        assertEquals("Should only return 1 movie", 1, movies.size());
+        assertEquals("Should return the most popular movies", "Cached Movie 1", movies
                 .get(0)
                 .getTitle());
     }
 
     @Test
     public void testCacheExpiration() throws Exception {
-        // 准备过期的缓存数据
+
         String cachedData = "[{\"id\":1,\"title\":\"Old Movie\",\"popularity\":100.0," +
                 "\"vote_average\":8.5}]";
         Files.createDirectories(Paths.get(TEST_CACHE_DIR));
@@ -182,14 +172,11 @@ public class TMDBMovieCacheServiceTest {
                 .toString()
                 .getBytes(StandardCharsets.UTF_8));
 
-        // 创建测试数据
         MovieList movieList = createTestMovieList(TEST_MOVIE_COUNT);
         TMDBApiService.setTestMode(true, movieList);
 
-        // 执行测试
         List<Movie> movies = TMDBMovieCacheService.getPopularMovies(TEST_MOVIE_COUNT);
 
-        // 更新测试缓存文件
         String json = new com.fasterxml.jackson.databind.ObjectMapper().writeValueAsString(movies);
         Files.write(Paths.get(TEST_CACHE_FILE), json.getBytes(StandardCharsets.UTF_8));
         Files.write(Paths.get(TEST_LAST_UPDATE_FILE), LocalDateTime
@@ -197,27 +184,23 @@ public class TMDBMovieCacheServiceTest {
                 .toString()
                 .getBytes(StandardCharsets.UTF_8));
 
-        // 验证结果
-        assertNotNull("返回的电影列表不应为空", movies);
-        assertEquals("应该返回指定数量的新电影", TEST_MOVIE_COUNT, movies.size());
+        assertNotNull("The returned list of movies should not be empty", movies);
+        assertEquals("Should return the specified number of new movies", TEST_MOVIE_COUNT, movies.size());
     }
 
     @Test
     public void testPopularityOrder() throws Exception {
-        // 创建测试数据
         MovieList movieList = createTestMovieList(TEST_MOVIE_COUNT);
         TMDBApiService.setTestMode(true, movieList);
 
-        // 执行测试
         List<Movie> movies = TMDBMovieCacheService.getPopularMovies(TEST_MOVIE_COUNT);
 
-        // 验证结果
-        assertNotNull("返回的电影列表不应为空", movies);
-        assertEquals("应该返回指定数量的电影", TEST_MOVIE_COUNT, movies.size());
+        assertNotNull("The returned list of movies should not be empty", movies);
+        assertEquals("Should return the specified number of movies", TEST_MOVIE_COUNT, movies.size());
 
-        // 验证电影是否按人气排序
+        // Verify that movies are sorted by popularity
         for (int i = 0; i < movies.size() - 1; i++) {
-            assertTrue("电影应该按人气降序排序", movies
+            assertTrue("Movies should be sorted in descending order of popularity", movies
                     .get(i)
                     .getPopularity() >= movies
                     .get(i + 1)
@@ -227,7 +210,7 @@ public class TMDBMovieCacheServiceTest {
 
     @Test
     public void testRequestMoreThanCache() throws Exception {
-        // 准备缓存数据（2部电影）
+        // Prepare cache data (2 movies)
         String cachedData = "[{\"id\":1,\"title\":\"Cached Movie 1\",\"popularity\":100.0," +
                 "\"vote_average\":8.5}," + "{\"id\":2,\"title\":\"Cached Movie 2\"," +
                 "\"popularity\":90.0,\"vote_average\":8.0}]";
@@ -238,24 +221,19 @@ public class TMDBMovieCacheServiceTest {
                 .toString()
                 .getBytes(StandardCharsets.UTF_8));
 
-        // 创建测试数据
         MovieList movieList = createTestMovieList(3);
         TMDBApiService.setTestMode(true, movieList);
 
-        // 记录原始文件大小
         long originalSize = Files.size(Paths.get(TEST_CACHE_FILE));
 
-        // 执行测试 - 请求3部电影（比缓存多）
         List<Movie> movies = TMDBMovieCacheService.getPopularMovies(3);
 
-        // 手动更新缓存文件大小
         String json = new com.fasterxml.jackson.databind.ObjectMapper().writeValueAsString(movies);
         Files.write(Paths.get(TEST_CACHE_FILE), json.getBytes(StandardCharsets.UTF_8));
 
-        // 验证结果
-        assertNotNull("返回的电影列表不应为空", movies);
-        assertEquals("应该返回3部电影", 3, movies.size());
-        // 验证是否触发了重新获取
-        assertTrue("缓存文件应该被更新", Files.size(Paths.get(TEST_CACHE_FILE)) > originalSize);
+        assertNotNull("The returned list of movies should not be empty", movies);
+        assertEquals("Should return 3 movies", 3, movies.size());
+        // Verify that a re-fetch is triggered
+        assertTrue("The cache file should be updated", Files.size(Paths.get(TEST_CACHE_FILE)) > originalSize);
     }
 }

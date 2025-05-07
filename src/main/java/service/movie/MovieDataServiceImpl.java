@@ -16,42 +16,42 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * 电影数据服务实现类
- * 实现游戏所需的所有电影数据相关功能
+* Movie data service implementation class
+* Implement all movie data related functions required by the game
  */
 @Slf4j
 public class MovieDataServiceImpl implements MovieDataService {
-    // 测试数据电影数量
+    // Number of test data movies
     private static final int TEST_MOVIES_LIMIT = 20;
-    // 单例实例
+    // Singleton Instance
     private static MovieDataServiceImpl instance;
     /**
      * -- SETTER --
-     * 设置测试模式
+     * Setting the test mode
      */
-    // 测试模式标志
+    // Test mode flag
     @Setter
     private static boolean testMode = false;
-    // 电影索引服务
+    // Movie Indexing Service
     private final MovieIndexService indexService;
-    // 随机数生成器
+    // Random Number Generator
     private final Random random = new Random();
-    // 初始电影列表（Top 5000）
+    // Initial movie list (Top 5000)
     private List<Movie> initialMoviesList;
-    // 启动器电影列表（每日更新的起始电影）
+    // Starter Movie List (daily updated starter movies)
     private List<Movie> starterMovies;
 
     /**
-     * 私有构造函数
+     * Private Constructor
      */
     private MovieDataServiceImpl() {
         this.indexService = MovieIndexService.getInstance();
-        // 加载初始电影列表
+        // Loading the initial movie list
         loadInitialMovies();
     }
 
     /**
-     * 获取单例实例
+     * Get a singleton instance
      */
     public static synchronized MovieDataServiceImpl getInstance() {
         if (instance == null) {
@@ -61,20 +61,20 @@ public class MovieDataServiceImpl implements MovieDataService {
     }
 
     /**
-     * 加载初始电影列表
+     * Loading the initial movie list
      */
     private void loadInitialMovies() {
-        // 确定要加载的电影数量
+        // Determine the number of movies to load
         int moviesCount = testMode ? TEST_MOVIES_LIMIT : 5000;
 
-        // 从缓存服务获取热门电影
+        //Get popular movies from cache service
         initialMoviesList = TMDBMovieCacheService.getPopularMovies(moviesCount);
-        log.info("已加载{}部初始电影", initialMoviesList.size());
+        log.info("{} initial movies loaded", initialMoviesList.size());
 
-        // 初始化电影索引
+        // Initialize the movie index
         indexService.initializeIndexes(initialMoviesList);
 
-        // 预加载启动器电影列表（当前使用前20部电影或全部作为示例）
+        // Preload launcher movie list (currently uses first 20 movies or all as examples)
         int starterLimit = Math.min(20, initialMoviesList.size());
         starterMovies = initialMoviesList
                 .stream()
@@ -90,11 +90,11 @@ public class MovieDataServiceImpl implements MovieDataService {
     @Override
     public Movie getRandomStarterMovie() {
         if (starterMovies.isEmpty()) {
-            // 如果启动器电影为空，返回初始列表中的第一部电影
+            // If the starter movie is empty, return the first movie in the initial list
             return initialMoviesList.get(0);
         }
 
-        // 随机返回一部启动器电影
+        // Returns a random launcher movie
         int index = random.nextInt(starterMovies.size());
         return starterMovies.get(index);
     }
@@ -105,14 +105,14 @@ public class MovieDataServiceImpl implements MovieDataService {
             return Collections.emptyList();
         }
 
-        // 从索引中搜索
+        // Search from index
         List<Movie> results = indexService.searchByPrefix(prefix);
 
-        // 如果本地索引没有结果，调用API搜索
+        // If there are no results in the local index, call the API to search
         if (results.isEmpty()) {
             results = TMDBApiService.searchMovies(prefix, 1);
 
-            // 添加到索引
+            // Add to Index
             for (Movie movie : results) {
                 indexService.getMovieById(movie.getId());
             }
@@ -133,10 +133,10 @@ public class MovieDataServiceImpl implements MovieDataService {
             return false;
         }
 
-        // 获取两部电影之间的连接
+        // Get the connection between two movies
         List<Connection> connections = getConnections(previousMovie, currentMovie);
 
-        // 如果有连接，则验证通过
+        // If there is a connection, the verification is successful
         return !connections.isEmpty();
     }
 
@@ -148,7 +148,7 @@ public class MovieDataServiceImpl implements MovieDataService {
 
         List<Connection> connections = new ArrayList<>();
 
-        // 获取电影演职人员信息
+        // Get movie cast and crew information
         MovieCredits previousCredits = indexService.getMovieCredits(previousMovie.getId());
         MovieCredits currentCredits = indexService.getMovieCredits(currentMovie.getId());
 
@@ -156,7 +156,7 @@ public class MovieDataServiceImpl implements MovieDataService {
             return Collections.emptyList();
         }
 
-        // 检查共同演员
+        // Check co-actors
         Map<Integer, CastMember> previousCastMap = previousCredits
                 .getCast()
                 .stream()
@@ -165,12 +165,12 @@ public class MovieDataServiceImpl implements MovieDataService {
         for (CastMember currentCast : currentCredits.getCast()) {
             if (previousCastMap.containsKey(currentCast.getId())) {
                 CastMember previousCast = previousCastMap.get(currentCast.getId());
-                connections.add(new Connection(previousMovie, currentMovie, "演员",
+                connections.add(new Connection(previousMovie, currentMovie, "actor",
                                                previousCast.getName(), previousCast.getId()));
             }
         }
 
-        // 检查共同导演
+        // Check Co-Director
         Map<Integer, CrewMember> previousDirectorsMap = previousCredits
                 .getCrew()
                 .stream()
@@ -180,13 +180,13 @@ public class MovieDataServiceImpl implements MovieDataService {
         for (CrewMember currentCrew : currentCredits.getCrew()) {
             if ("Director".equals(currentCrew.getJob()) && previousDirectorsMap.containsKey(currentCrew.getId())) {
                 CrewMember previousDirector = previousDirectorsMap.get(currentCrew.getId());
-                connections.add(new Connection(previousMovie, currentMovie, "导演",
+                connections.add(new Connection(previousMovie, currentMovie, "director",
                                                previousDirector.getName(),
                                                previousDirector.getId()));
             }
         }
 
-        // 检查共同编剧
+        // Check Co-Writers
         Map<Integer, CrewMember> previousWritersMap = previousCredits
                 .getCrew()
                 .stream()
@@ -196,7 +196,7 @@ public class MovieDataServiceImpl implements MovieDataService {
         for (CrewMember currentCrew : currentCredits.getCrew()) {
             if (("Writer".equals(currentCrew.getJob()) || "Screenplay".equals(currentCrew.getJob())) && previousWritersMap.containsKey(currentCrew.getId())) {
                 CrewMember previousWriter = previousWritersMap.get(currentCrew.getId());
-                connections.add(new Connection(previousMovie, currentMovie, "编剧",
+                connections.add(new Connection(previousMovie, currentMovie, "screenwriter",
                                                previousWriter.getName(), previousWriter.getId()));
             }
         }
@@ -225,19 +225,19 @@ public class MovieDataServiceImpl implements MovieDataService {
 
         switch (type.toLowerCase()) {
             case "genre":
-                // 检查电影类型
+                // Check movie genre
                 return checkMovieGenre(movie, value);
 
             case "actor":
-                // 检查演员
+                // Check the actors
                 return checkMovieActor(movie, value);
 
             case "director":
-                // 检查导演
+                // Check Director
                 return checkMovieDirector(movie, value);
 
             case "writer":
-                // 检查编剧
+                // Check the screenwriter
                 return checkMovieWriter(movie, value);
 
             default:
@@ -246,7 +246,7 @@ public class MovieDataServiceImpl implements MovieDataService {
     }
 
     /**
-     * 检查电影类型是否匹配
+     * Check if the movie genre matches
      */
     private boolean checkMovieGenre(Movie movie, String genreName) {
         return MovieGenreService
@@ -255,7 +255,7 @@ public class MovieDataServiceImpl implements MovieDataService {
     }
 
     /**
-     * 检查电影演员是否匹配
+     * Check if movie actors match
      */
     private boolean checkMovieActor(Movie movie, String actorName) {
         MovieCredits credits = indexService.getMovieCredits(movie.getId());
@@ -272,7 +272,7 @@ public class MovieDataServiceImpl implements MovieDataService {
     }
 
     /**
-     * 检查电影导演是否匹配
+     * Check if the movie director matches
      */
     private boolean checkMovieDirector(Movie movie, String directorName) {
         MovieCredits credits = indexService.getMovieCredits(movie.getId());
@@ -290,7 +290,7 @@ public class MovieDataServiceImpl implements MovieDataService {
     }
 
     /**
-     * 检查电影编剧是否匹配
+     * Check if the movie screenwriter matches
      */
     private boolean checkMovieWriter(Movie movie, String writerName) {
         MovieCredits credits = indexService.getMovieCredits(movie.getId());
@@ -319,13 +319,13 @@ public class MovieDataServiceImpl implements MovieDataService {
 
     @Override
     public void initializeDataIndexes() {
-        // 重新初始化索引，可在需要时调用
+        // Reinitialize the index, which can be called when needed
         if (initialMoviesList != null && !initialMoviesList.isEmpty()) {
-            log.info("重新初始化电影索引...");
+            log.info("Reinitializing movie index...");
             indexService.initializeIndexes(initialMoviesList);
         } else {
-            log.warn("初始化索引失败：电影列表为空");
-            // 重新加载初始电影列表
+            log.warn("Failed to initialize index: Movie list is empty");
+            // Reload the initial movie list
             loadInitialMovies();
         }
     }

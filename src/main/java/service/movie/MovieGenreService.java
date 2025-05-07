@@ -10,27 +10,27 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * 电影类型服务
- * 负责管理电影类型的映射关系
+ * Movie Type Service
+* Responsible for managing the mapping relationship of movie types
  */
 @Slf4j
 public class MovieGenreService {
-    // 单例实例
+    // Singleton Instance
     private static MovieGenreService instance;
-    // 类型ID到名称的映射
+    // Mapping of type IDs to names
     private final Map<Integer, String> genreMap = new ConcurrentHashMap<>();
-    // 类型名称到ID的映射
+    // Mapping of type names to IDs
     private final Map<String, Integer> genreNameMap = new ConcurrentHashMap<>();
 
     /**
-     * 私有构造函数
+     * Private Constructor
      */
     private MovieGenreService() {
         initializeGenres();
     }
 
     /**
-     * 获取单例实例
+     * Get a singleton instance
      */
     public static synchronized MovieGenreService getInstance() {
         if (instance == null) {
@@ -40,13 +40,13 @@ public class MovieGenreService {
     }
 
     /**
-     * 初始化电影类型映射
+     * Initialize movie type mapping
      */
     private void initializeGenres() {
         List<Genre> genres = TMDBApiService.getMovieGenres();
         if (genres.isEmpty()) {
-            log.warn("无法获取电影类型列表，使用默认映射");
-            // 使用默认映射
+            log.warn("Unable to get movie genre list, using default mapping");
+            // Use default mapping
             Map<Integer, String> defaultGenres = new HashMap<>();
             defaultGenres.put(28, "Action");
             defaultGenres.put(12, "Adventure");
@@ -73,7 +73,7 @@ public class MovieGenreService {
                 genreNameMap.put(name, id);
             });
         } else {
-            // 使用API返回的类型列表
+            // Use the type column returned by the API
             genres.forEach(genre -> {
                 genreMap.put(genre.getId(), genre.getName());
                 genreNameMap.put(genre.getName(), genre.getId());
@@ -82,31 +82,31 @@ public class MovieGenreService {
     }
 
     /**
-     * 获取类型ID对应的名称
+     * Get the name corresponding to the type ID
      *
-     * @param genreId 类型ID
-     * @return 类型名称
+     * @param genreId 
+     * @return Type Name
      */
     public String getGenreName(int genreId) {
         return genreMap.getOrDefault(genreId, "Unknown Genre");
     }
 
     /**
-     * 获取类型名称对应的ID
+     * Get the ID corresponding to the type name
      *
-     * @param genreName 类型名称
-     * @return 类型ID
+     * @param genreName 
+     * @return TypeID
      */
     public Integer getGenreId(String genreName) {
         return genreNameMap.get(genreName);
     }
 
     /**
-     * 检查电影是否属于指定类型
+     * Checks if a movie belongs to a given genre
      *
-     * @param genreIds  电影的类型ID列表
-     * @param genreName 要检查的类型名称
-     * @return 是否属于指定类型
+     * @param genreIds  List of movie genre IDs
+     * @param genreName The name of the type to check
+     * @return Is it of the specified type?
      */
     public boolean hasGenre(int[] genreIds, String genreName) {
         if (genreIds == null || genreName == null) {

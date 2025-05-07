@@ -20,7 +20,6 @@ import com.googlecode.lanterna.screen.Screen;
 import com.googlecode.lanterna.terminal.DefaultTerminalFactory;
 import model.game.WinCondition;
 import model.tmdb.Movie;
-
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
@@ -31,7 +30,7 @@ public class ConsoleView {
     private final MultiWindowTextGUI gui;
     private ScheduledExecutorService scheduler;
     private volatile boolean timerRunning;
-    private volatile int secondsRemaining;
+    private volatile int secondsRemaining = 30;
 
     public ConsoleView() throws IOException {
         Screen screen = new DefaultTerminalFactory().createScreen();
@@ -137,34 +136,6 @@ public class ConsoleView {
         gui.getScreen().stopScreen();
     }
     
-//    public void showFullMovieDetails(Movie movie, List<String> genres,
-//            List<String> directors, List<String> writers,
-//            List<String> cinematographers, List<String> composers,
-//            List<String> castMembers) {
-//        BasicWindow window = new BasicWindow("Movie Details");
-//        Panel panel = new Panel();
-//        panel.setLayoutManager(new LinearLayout(Direction.VERTICAL));
-//        
-//        panel.addComponent(new Label("Title: " + movie.getTitle() + " (" + movie.getReleaseDate().split("-")[0] + ")"));
-//        panel.addComponent(new Label("Genres: " + String.join(", ", genres)));
-//        
-//        if (!directors.isEmpty())
-//        panel.addComponent(new Label("Director: " + String.join(", ", directors)));
-//        if (!writers.isEmpty())
-//        panel.addComponent(new Label("Writers: " + String.join(", ", writers)));
-//        if (!cinematographers.isEmpty())
-//        panel.addComponent(new Label("Cinematographer: " + String.join(", ", cinematographers)));
-//        if (!composers.isEmpty())
-//        panel.addComponent(new Label("Composer: " + String.join(", ", composers)));
-//        if (!castMembers.isEmpty())
-//        panel.addComponent(new Label("Featuring: " + String.join(", ", castMembers)));
-//        
-//        panel.addComponent(new EmptySpace(new TerminalSize(1, 1)));
-//        panel.addComponent(new Button("OK", window::close));
-//        
-//        window.setComponent(panel);
-//        gui.addWindowAndWait(window);
-//    }
     public void showFullMovieDetails(Movie movie, List<String> genres,
             List<String> directors, List<String> writers,
             List<String> cinematographers, List<String> composers,
@@ -300,14 +271,15 @@ public class ConsoleView {
         window.setComponent(panel);
         gui.addWindowAndWait(window);
     }
-    
+
     public void startCountdownTimer(int seconds, Runnable onTimeout, Label timerLabel) {
+//        if (scheduler != null && !scheduler.isShutdown()) {
+//            // Already running, do not restart
+//            return;
+//        }
+
         secondsRemaining = seconds;
         timerRunning = true;
-
-        if (scheduler != null && !scheduler.isShutdown()) {
-            scheduler.shutdownNow();
-        }
 
         scheduler = Executors.newSingleThreadScheduledExecutor();
 
@@ -413,7 +385,9 @@ public class ConsoleView {
             Movie movie,
             WinCondition condition,
             MovieDataService movieDataService,
-            Runnable onTimeout
+            Runnable onTimeout,
+            Label timerLabel,
+            boolean startTimer
     ) {
         BasicWindow window = new BasicWindow("Movie Game Turn");
         Panel panel = new Panel(new LinearLayout(Direction.VERTICAL));
@@ -477,14 +451,14 @@ public class ConsoleView {
             panel.addComponent(new Label("(Credits not available)"));
         }
 
-        panel.addComponent(new Label("Progress: " + condition.getCurrentCount() + " / " + condition.getTargetCount()));
+        panel.addComponent(new Label("Progress: " + condition.getConditionValue()+ ": " +condition.getCurrentCount() + " / " + condition.getTargetCount()));
         panel.addComponent(new Label("Enter the next movie prefix:"));
 
         TextBox inputBox = new TextBox().setPreferredSize(new TerminalSize(40, 1));
         panel.addComponent(inputBox);
 
-        Label timerLabel = new Label("Time left: 30s");
-        panel.addComponent(timerLabel);
+        Label usedTimerLabel = timerLabel != null ? timerLabel : new Label("Time left: " + secondsRemaining + "s");
+        panel.addComponent(usedTimerLabel);
 
         panel.addComponent(new Label("Suggestions:"));
         ComboBox<String> movieComboBox = new ComboBox<>();
@@ -509,18 +483,27 @@ public class ConsoleView {
             }
         });
 
-        startCountdownTimer(30, () -> {
-            window.close();
-            onTimeout.run();
-        }, timerLabel);
+//        startCountdownTimer(30, () -> {
+//            window.close();
+//            onTimeout.run();
+//        }, timerLabel);
+        
+        if (startTimer) {
+            startCountdownTimer(secondsRemaining, () -> {
+                window.close();
+                onTimeout.run();
+            }, usedTimerLabel);
+        }
 
         window.setComponent(panel);
         gui.addWindowAndWait(window);
 
         timerRunning = false;
         if (scheduler != null) scheduler.shutdownNow();
-
+           
+       
         String selectedTitle = movieComboBox.getSelectedItem();
+            
         return selectedTitle != null ? selectedTitle.trim() : "";
     }
 
@@ -540,14 +523,20 @@ public class ConsoleView {
     public void showErrorNonBlocking(String message) {
         new Thread(() -> {
             try {
-                BasicWindow window = new BasicWindow("Error");
-                Panel panel = new Panel();
-                panel.setLayoutManager(new LinearLayout(Direction.VERTICAL));
-                panel.addComponent(new Label("Error: " + message));
-                panel.addComponent(new Button("OK", window::close));
-                window.setComponent(panel);
-                gui.addWindow(window);
+                gui.getGUIThread().invokeLater(() -> {
+                    BasicWindow window = new BasicWindow("Error");
+                    Panel panel = new Panel();
+                    panel.setLayoutManager(new LinearLayout(Direction.VERTICAL));
+                    panel.addComponent(new Label("Error: " + message));
+                    panel.addComponent(new Button("OK", window::close));
+                    window.setComponent(panel);
+                    gui.addWindow(window);
+                });
             } catch (Exception ignored) {}
         }).start();
+    }
+    
+    public void resettime() {
+        this.secondsRemaining = 30;
     }
 }

@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 
 /**
- * TMDB电影类型实体类
+ * TMDB movie genre entity class
  */
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
