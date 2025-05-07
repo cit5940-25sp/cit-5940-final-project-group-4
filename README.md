@@ -30,6 +30,42 @@ public class MyClass {
 }
 ```
 
+### Installation
+
+To use `@Slf4j`, you need two things:
+
+---
+
+#### 1. Add Lombok and SLF4J to your project
+
+##### We already took care this park (just in case) **Maven**:
+
+```xml
+<dependencies>
+    <!-- Lombok -->
+    <dependency>
+        <groupId>org.projectlombok</groupId>
+        <artifactId>lombok</artifactId>
+        <version>1.18.30</version>
+        <scope>provided</scope>
+    </dependency>
+
+    <!-- SLF4J API -->
+    <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-api</artifactId>
+        <version>2.0.9</version>
+    </dependency>
+
+    <!-- SLF4J Implementation (e.g., logback-classic) -->
+    <dependency>
+        <groupId>ch.qos.logback</groupId>
+        <artifactId>logback-classic</artifactId>
+        <version>1.4.11</version>
+    </dependency>
+</dependencies>
+```
+
 ## 1. MovieDataService's functions and methods
 
 `MovieDataService is the core interface of the system, responsible for providing all movie data related functions required by the game. Specific functions include：
