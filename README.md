@@ -2,6 +2,34 @@
 
 > CIT5940 Group 4
 
+## Additional Package:
+### Lombok `@Slf4j` Annotation
+
+The `@Slf4j` annotation is part of the **Lombok** library and is used to automatically generate a `Logger` instance (specifically using **SLF4J** – Simple Logging Facade for Java) in your class.
+
+Instead of writing:
+
+```java
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+public class MyClass {
+    private static final Logger log = LoggerFactory.getLogger(MyClass.class);
+}
+```
+You can simply annotate your class with @Slf4j:
+```java
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
+public class MyClass {
+    public void run() {
+        log.info("This is an info message.");
+        log.error("This is an error message.");
+    }
+}
+```
+
 ## 1. MovieDataService's functions and methods
 
 `MovieDataService is the core interface of the system, responsible for providing all movie data related functions required by the game. Specific functions include：
