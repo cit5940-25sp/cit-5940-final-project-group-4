@@ -139,6 +139,50 @@ view.showVictory();
 ```
 
 
+### GameController
+
+The `GameController` class manages the main game loop and orchestrates interactions between the game state (`GameSession`), the movie service (`MovieDataService`), and the user interface (`ConsoleView`).
+
+#### Responsibilities:
+- Initialize win conditions randomly at game start
+- Display game progress and handle user input
+- Validate selected movies and movie connections
+- Track player progress toward their win condition
+- Handle timer expiration and player switching
+- End the game when a player meets their win condition
+
+```java
+// Example controller instantiation and launch
+GameController controller = new GameController(session, movieDataService);
+controller.startGame();
+```
+
+
+### Main
+
+The `Main` class serves as the program’s entry point. It sets up the core dependencies and starts the game.
+
+#### Responsibilities:
+- Instantiate `MovieDataService` via singleton
+- Select a starter movie (randomly chosen from top 5000 list)
+- Initialize a new `GameSession` with placeholder win conditions (to be overridden)
+- Instantiate and launch `GameController`
+
+```java
+public static void main(String[] args) {
+    MovieDataService movieDataService = MovieDataServiceImpl.getInstance();
+    Movie startMovie = movieDataService.getRandomStarterMovie();
+
+    if (startMovie == null) {
+        throw new RuntimeException("No starter movie available.");
+    }
+
+    GameSession session = new GameSession("session-001", startMovie, null, null, "Player1", "Player2");
+    GameController controller = new GameController(session, movieDataService);
+    controller.startGame();
+}
+
+```
 
 ## 4. System architecture UML diagram
 
