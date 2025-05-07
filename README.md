@@ -66,6 +66,15 @@ To use `@Slf4j`, you need two things:
 </dependencies>
 ```
 
+#### 2. Enable annotation processing in your IDE
+
+- **In IntelliJ IDEA**:  
+  Go to `Preferences > Build, Execution, Deployment > Compiler > Annotation Processors`,  
+  and check **"Enable annotation processing"**.
+
+- **In Eclipse**:  
+  Lombok should work automatically if you have the **Lombok plugin installed**.
+
 ## 1. MovieDataService's functions and methods
 
 `MovieDataService is the core interface of the system, responsible for providing all movie data related functions required by the game. Specific functions include：
