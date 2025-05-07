@@ -1,6 +1,6 @@
 # Movie Battle Game System Project Documentation
 
-> gaoyukun-data-v1
+> CIT5940 Group 4
 
 ## 1. MovieDataService's functions and methods
 
@@ -114,8 +114,31 @@
 6. **WinCondition**
    - Indicates the game winning condition
    - Contains the condition type, value and target number
+  
+## 3. View and Control Classes
+### ConsoleView
 
-## 3. System architecture UML diagram
+The `ConsoleView` class provides the terminal-based user interface using the Lanterna library. It interacts with the player to display game information, prompt for input, handle countdown timers, and render live movie suggestions.
+
+#### Core methods:
+- `showWelcome()`: Display welcome message at the start of the game
+- `showWinCondition(String)`: Display each player’s win condition
+- `showGameTurn(...)`: Display the current round with movie history, movie details, suggestions, and input field
+- `promptMoviePrefixWithLiveSuggestions(...)`: Provide real-time suggestions as the player types
+- `showVictory()`: Display the victory screen when the win condition is achieved
+- `showError(String)`: Show blocking error message window
+- `showErrorNonBlocking(String)`: Show error in a separate thread without blocking UI
+- `resettime()`: Reset the internal countdown timer to 30 seconds
+- `stop()`: Cleanly shut down the Lanterna screen and GUI
+
+```java
+// Example usage inside the controller
+view.showWelcome();
+String inputTitle = view.showGameTurn(round, playerName, history, movie, condition, movieDataService, onTimeout, timerLabel, true);
+view.showVictory();
+
+
+## 4. System architecture UML diagram
 
 ```mermaid
 classDiagram
