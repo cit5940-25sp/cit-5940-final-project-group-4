@@ -70,7 +70,7 @@ public class GameController {
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }
-                            System.out.println("\u23F0 Time's up! You lost.");
+                            System.out.println("\u23F0 Time's up! " + session.getCurrentPlayerName() + " lost the game.");
                             System.exit(0);
                         },
                         timerLabel,

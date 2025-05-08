@@ -1,80 +1,6 @@
 # Movie Battle Game System Project Documentation
 
-> CIT5940 Group 4: 
-> HongKai Zhang, Feng Jiang, YuKun Gao
-
-## Additional Package:
-### Lombok `@Slf4j` Annotation
-
-The `@Slf4j` annotation is part of the **Lombok** library and is used to automatically generate a `Logger` instance (specifically using **SLF4J** – Simple Logging Facade for Java) in your class.
-
-Instead of writing:
-
-```java
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-public class MyClass {
-    private static final Logger log = LoggerFactory.getLogger(MyClass.class);
-}
-```
-You can simply annotate your class with @Slf4j:
-```java
-import lombok.extern.slf4j.Slf4j;
-
-@Slf4j
-public class MyClass {
-    public void run() {
-        log.info("This is an info message.");
-        log.error("This is an error message.");
-    }
-}
-```
-
-### Installation
-
-To use `@Slf4j`, you need two things:
-
----
-
-#### 1. Add Lombok and SLF4J to your project
-
-##### We already took care this park (just in case) **Maven**:
-
-```xml
-<dependencies>
-    <!-- Lombok -->
-    <dependency>
-        <groupId>org.projectlombok</groupId>
-        <artifactId>lombok</artifactId>
-        <version>1.18.30</version>
-        <scope>provided</scope>
-    </dependency>
-
-    <!-- SLF4J API -->
-    <dependency>
-        <groupId>org.slf4j</groupId>
-        <artifactId>slf4j-api</artifactId>
-        <version>2.0.9</version>
-    </dependency>
-
-    <!-- SLF4J Implementation (e.g., logback-classic) -->
-    <dependency>
-        <groupId>ch.qos.logback</groupId>
-        <artifactId>logback-classic</artifactId>
-        <version>1.4.11</version>
-    </dependency>
-</dependencies>
-```
-
-#### 2. Enable annotation processing in your IDE
-
-- **In IntelliJ IDEA**:  
-  Go to `Preferences > Build, Execution, Deployment > Compiler > Annotation Processors`,  
-  and check **"Enable annotation processing"**.
-
-- **In Eclipse**:  
-  Lombok should work automatically if you have the **Lombok plugin installed**.
+> gaoyukun-data-v1
 
 ## 1. MovieDataService's functions and methods
 
@@ -188,77 +114,8 @@ To use `@Slf4j`, you need two things:
 6. **WinCondition**
    - Indicates the game winning condition
    - Contains the condition type, value and target number
-  
-## 3. View and Control Classes
-### ConsoleView
 
-The `ConsoleView` class provides the terminal-based user interface using the Lanterna library. It interacts with the player to display game information, prompt for input, handle countdown timers, and render live movie suggestions.
-
-#### Core methods:
-- `showWelcome()`: Display welcome message at the start of the game
-- `showWinCondition(String)`: Display each player’s win condition
-- `showGameTurn(...)`: Display the current round with movie history, movie details, suggestions, and input field
-- `promptMoviePrefixWithLiveSuggestions(...)`: Provide real-time suggestions as the player types
-- `showVictory()`: Display the victory screen when the win condition is achieved
-- `showError(String)`: Show blocking error message window
-- `showErrorNonBlocking(String)`: Show error in a separate thread without blocking UI
-- `resettime()`: Reset the internal countdown timer to 30 seconds
-- `stop()`: Cleanly shut down the Lanterna screen and GUI
-
-```java
-// Example usage inside the controller
-view.showWelcome();
-String inputTitle = view.showGameTurn(round, playerName, history, movie, condition, movieDataService, onTimeout, timerLabel, true);
-view.showVictory();
-```
-
-
-### GameController
-
-The `GameController` class manages the main game loop and orchestrates interactions between the game state (`GameSession`), the movie service (`MovieDataService`), and the user interface (`ConsoleView`).
-
-#### Responsibilities:
-- Initialize win conditions randomly at game start
-- Display game progress and handle user input
-- Validate selected movies and movie connections
-- Track player progress toward their win condition
-- Handle timer expiration and player switching
-- End the game when a player meets their win condition
-
-```java
-// Example controller instantiation and launch
-GameController controller = new GameController(session, movieDataService);
-controller.startGame();
-```
-
-
-### Main
-
-The `Main` class serves as the program’s entry point. It sets up the core dependencies and starts the game.
-
-#### Responsibilities:
-- Instantiate `MovieDataService` via singleton
-- Select a starter movie (randomly chosen from top 5000 list)
-- Initialize a new `GameSession` with placeholder win conditions (to be overridden)
-- Instantiate and launch `GameController`
-
-```java
-public static void main(String[] args) {
-    MovieDataService movieDataService = MovieDataServiceImpl.getInstance();
-    Movie startMovie = movieDataService.getRandomStarterMovie();
-
-    if (startMovie == null) {
-        throw new RuntimeException("No starter movie available.");
-    }
-
-    GameSession session = new GameSession("session-001", startMovie, null, null, "Player1", "Player2");
-    GameController controller = new GameController(session, movieDataService);
-    controller.startGame();
-}
-
-```
-
-## 4. System architecture UML diagram
+## 3. System architecture UML diagram
 
 ```mermaid
 classDiagram
@@ -278,14 +135,14 @@ classDiagram
         +registerUsedConnection(Connection, GameSession) void
         +initializeDataIndexes() void
     }
-
+    
     %% Main service implementation
     class MovieDataServiceImpl {
         -static MovieDataServiceImpl instance
         +getInstance() MovieDataServiceImpl
         +matchesWinCondition(Movie, WinCondition) boolean
     }
-
+    
     class MovieIndexService {
         -static MovieIndexService instance
         +getInstance() MovieIndexService
@@ -293,13 +150,13 @@ classDiagram
         +getMovieById(int) Movie
         +getMovieCredits(int) MovieCredits
     }
-
+    
     class MovieGenreService {
         -static MovieGenreService instance
         +getInstance() MovieGenreService
         +hasGenre(int[], String) boolean
     }
-
+    
     %% TMDB API Service
     class TMDBApiService {
         +getMovieGenres() List~Genre~
@@ -307,7 +164,7 @@ classDiagram
         +getMovieDetails(int) Movie
         +getMovieCredits(int) MovieCredits
     }
-
+    
     %% Main model class
     class Movie {
         -int id
@@ -315,18 +172,18 @@ classDiagram
         -int[] genreIds
         -double voteAverage
     }
-
+    
     class MovieCredits {
         -int id
         -List~CastMember~ cast
         -List~CrewMember~ crew
     }
-
+    
     class Genre {
         -int id
         -String name
     }
-
+    
     %% Game core model
     class GameSession {
         -Movie currentMovie
@@ -335,7 +192,7 @@ classDiagram
         +isMovieAlreadyUsed(Movie) boolean
         +isConnectionUsedThreeTimes(int) boolean
     }
-
+    
     class Connection {
         -Movie movie1
         -Movie movie2
@@ -343,7 +200,7 @@ classDiagram
         -String connectionValue
         -int personId
     }
-
+    
     class WinCondition {
         -String conditionType
         -String conditionValue
@@ -351,61 +208,21 @@ classDiagram
         +isAchieved() boolean
     }
 
-    %% User interface view
-    class ConsoleView {
-        -MultiWindowTextGUI gui
-        -boolean timerRunning
-        -int secondsRemaining
-        +showWelcome() void
-        +showWinCondition(String) void
-        +showGameTurn(...) String
-        +showVictory() void
-        +showError(String) void
-        +showErrorNonBlocking(String) void
-        +stop() void
-        +resettime() void
-    }
-
-    %% Game controller
-    class GameController {
-        -GameSession session
-        -MovieDataService movieDataService
-        -ConsoleView view
-        +startGame() void
-    }
-
-    %% Main entry point
-    class Main {
-        +main(String[]) void
-    }
-
     %% Core Relationships
     MovieDataService <|.. MovieDataServiceImpl : accomplish
+    
     MovieDataServiceImpl --> MovieIndexService : use
     MovieDataServiceImpl --> MovieGenreService : use
     MovieDataServiceImpl --> GameSession : manage
-
+    
     MovieIndexService --> TMDBApiService : Call
     MovieGenreService --> TMDBApiService : Call
-
+    
     Movie <-- TMDBApiService : Get
     MovieCredits <-- TMDBApiService : Get
     Genre <-- TMDBApiService : Get
-
+    
     Connection --> Movie : associate
     GameSession --> Movie : track
     GameSession --> Connection : Record usage
-
-    %% New associations
-    GameController --> GameSession : control
-    GameController --> MovieDataService : use
-    GameController --> ConsoleView : display
-    ConsoleView --> Movie : show
-    ConsoleView --> MovieCredits : show
-    ConsoleView --> WinCondition : show
-    ConsoleView --> Connection : show
-
-    Main --> MovieDataService : create
-    Main --> GameSession : create
-    Main --> GameController : create
 ``` 

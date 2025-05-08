@@ -115,6 +115,7 @@ public class GameSession {
     public WinCondition getCurrentPlayerWinCondition() {
         return isPlayer1Turn ? player1WinCondition : player2WinCondition;
     }
+    
 
     public boolean hasWon() {
         return getCurrentPlayerWinCondition().isAchieved();

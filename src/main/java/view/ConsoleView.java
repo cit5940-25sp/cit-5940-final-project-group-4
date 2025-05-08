@@ -18,12 +18,7 @@ import com.googlecode.lanterna.TerminalSize;
 import com.googlecode.lanterna.gui2.*;
 import com.googlecode.lanterna.screen.Screen;
 import com.googlecode.lanterna.terminal.DefaultTerminalFactory;
-import model.game.WinCondition;
-import model.tmdb.Movie;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
 
 
 public class ConsoleView {
@@ -52,6 +47,10 @@ public class ConsoleView {
 
     public void showCurrentPlayer(String playerName) {
         showMessage(">>> Now it's " + playerName + "'s turn <<<");
+    }
+    
+    public void showlost() {
+        showMessage("Time is up");
     }
 
     private void showMessage(String message) {
@@ -267,11 +266,6 @@ public class ConsoleView {
                 e.printStackTrace();
             }
         });
-
-//        startCountdownTimer(30, () -> {
-//            window.close();
-//            onTimeout.run();
-//        }, timerLabel);
         
         if (startTimer) {
             startCountdownTimer(secondsRemaining, () -> {
