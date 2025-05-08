@@ -147,10 +147,10 @@ public class GameController {
                 session.switchTurn();
                 firstAttempt = true;
             }
-            //firstAttempt = true;
-            view.showVictory();
+            session.switchTurn();
             view.stop();
-            System.out.println("\uD83C\uDF89 You won! You met the win condition!");
+            System.out.println("\uD83C\uDF89" + session.getCurrentPlayerName() +" " +"won! You met the win condition!");
+            System.out.flush();
             System.exit(0);
 
         } catch (IOException e) {
