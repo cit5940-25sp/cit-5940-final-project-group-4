@@ -125,6 +125,11 @@ public class MovieDataServiceImpl implements MovieDataService {
     public Movie getMovieById(int movieId) {
         return indexService.getMovieById(movieId);
     }
+    
+    @Override
+    public MovieCredits getMovieCredits(int movieId) {
+        return indexService.getMovieCredits(movieId);
+    }
 
 
     @Override
@@ -330,9 +335,5 @@ public class MovieDataServiceImpl implements MovieDataService {
         }
     }
     
-    @Override
-    public MovieCredits getMovieCredits(int movieId) {
-        return indexService.getMovieCredits(movieId);
-    }
 
 }

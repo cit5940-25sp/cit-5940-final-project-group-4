@@ -42,6 +42,14 @@ public interface MovieDataService {
      * @return Movie Details
      */
     Movie getMovieById(int movieId);
+    
+    /**
+     * Get full credits (cast and crew) for a given movie
+     *
+     * @param movieId Movie ID
+     * @return MovieCredits object containing cast and crew information
+     */
+    MovieCredits getMovieCredits(int movieId);
 
     /**
      * Verify that there is a valid connection between two movies
@@ -109,6 +117,4 @@ public interface MovieDataService {
     */
     void initializeDataIndexes();
     
-    MovieCredits getMovieCredits(int movieId);
-
 }
