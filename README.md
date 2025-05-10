@@ -380,7 +380,7 @@ classDiagram
     }
 
     %% Core Relationships
-    MovieDataService <|.. MovieDataServiceImpl : accomplish
+    MovieDataService <|.. MovieDataServiceImpl : implements
     MovieDataServiceImpl --> MovieIndexService : use
     MovieDataServiceImpl --> MovieGenreService : use
     MovieDataServiceImpl --> GameSession : manage
