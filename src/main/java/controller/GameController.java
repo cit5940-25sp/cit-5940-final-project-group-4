@@ -40,8 +40,10 @@ public class GameController {
             
             int targetCount = new Random().nextInt(5) + 3;
 
-            WinCondition player1Condition = getRandomGenreWinConditiontion(targetCount);
-            WinCondition player2Condition = getRandomGenreWinConditiontion(targetCount);
+            //WinCondition player1Condition = getRandomGenreWinConditiontion(targetCount);
+            WinCondition player1Condition = new WinCondition("genre", "Action", 1);
+            //WinCondition player2Condition = getRandomGenreWinConditiontion(targetCount);
+            WinCondition player2Condition = new WinCondition("genre", "Action", 1);
             session.setPlayer1WinCondition(player1Condition);
             session.setPlayer2WinCondition(player2Condition);
 
@@ -142,7 +144,10 @@ public class GameController {
 
                 // Ensure next currentMovie has full data
                 selected = movieDataService.getMovieById(selected.getId());
-
+                
+                if (session.hasWon()) {
+                    break;
+                }
                 currentMovie = selected;
                 session.switchTurn();
                 firstAttempt = true;
