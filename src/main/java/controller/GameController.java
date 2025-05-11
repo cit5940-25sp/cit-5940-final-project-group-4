@@ -6,6 +6,7 @@ import model.game.WinCondition;
 import model.tmdb.Movie;
 import model.tmdb.MovieCredits;
 import service.movie.MovieDataService;
+import service.movie.MovieDataServiceImpl;
 import service.movie.MovieGenreService;
 import view.ConsoleView;
 import java.util.List;
@@ -40,10 +41,10 @@ public class GameController {
             
             int targetCount = new Random().nextInt(5) + 3;
 
-            //WinCondition player1Condition = getRandomGenreWinConditiontion(targetCount);
-            WinCondition player1Condition = new WinCondition("genre", "Action", 1);
-            //WinCondition player2Condition = getRandomGenreWinConditiontion(targetCount);
-            WinCondition player2Condition = new WinCondition("genre", "Action", 1);
+            WinCondition player1Condition = getRandomGenreWinConditiontion(targetCount);
+            //WinCondition player1Condition = new WinCondition("genre", "Action", 1);
+            WinCondition player2Condition = getRandomGenreWinConditiontion(targetCount);
+            //WinCondition player2Condition = new WinCondition("genre", "Action", 1);
             session.setPlayer1WinCondition(player1Condition);
             session.setPlayer2WinCondition(player2Condition);
 
@@ -79,12 +80,10 @@ public class GameController {
                         firstAttempt
                 );
                 
-                
-                List<Movie> candidates = movieDataService.searchMoviesByPrefix(selectedTitle);
-                Movie selected = candidates.stream()
-                        .filter(m -> m.getTitle().equals(selectedTitle))
+                Movie selected = movieDataService.searchMoviesByPrefix(selectedTitle).stream()
                         .findFirst()
-                        .orElse(null);
+                        .orElseThrow(() -> new RuntimeException("selected movie not found"));
+                
 
                 if (selected == null) {
                     view.showErrorNonBlocking("Movie not found or selection was invalid.");
@@ -104,19 +103,6 @@ public class GameController {
                 timerLabel = new Label("Time left: 30s");
                 view.resettime();
                 
-
-                // Ensure full movie data is loaded
-                selected = movieDataService.getMovieById(selected.getId());
-
-                if (selected.getGenreIds() == null) {
-                    selected = movieDataService.getMovieById(selected.getId());
-                }
-
-                MovieCredits credits = movieDataService.getMovieCredits(selected.getId());
-                if (credits == null || credits.getCast() == null || credits.getCrew() == null) {
-                    credits = movieDataService.getMovieCredits(selected.getId());
-                }
-
 
                 movieDataService.registerUsedMovie(selected, session);
 
@@ -142,8 +128,6 @@ public class GameController {
                     condition.incrementProgress();
                 }
 
-                // Ensure next currentMovie has full data
-                selected = movieDataService.getMovieById(selected.getId());
                 
                 if (session.hasWon()) {
                     break;
@@ -152,7 +136,6 @@ public class GameController {
                 session.switchTurn();
                 firstAttempt = true;
             }
-            session.switchTurn();
             view.stop();
             System.out.println("\uD83C\uDF89" + session.getCurrentPlayerName() +" " +"won! You met the win condition!");
             System.out.flush();

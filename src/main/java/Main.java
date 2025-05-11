@@ -20,9 +20,15 @@ public class Main {
             // After input, proceed to initialize game
             MovieDataService movieDataService = MovieDataServiceImpl.getInstance();
 
-            Movie startMovie = movieDataService.searchMoviesByPrefix("Inception").stream()
-                    .findFirst()
-                    .orElseThrow(() -> new RuntimeException("Start movie not found"));
+//            Movie startMovie = movieDataService.searchMoviesByPrefix("Inception").stream()
+//                    .findFirst()
+//                    .orElseThrow(() -> new RuntimeException("Start movie not found"));
+            
+            
+
+            Movie startMovie = movieDataService.getRandomStarterMovie();
+
+            
 
             WinCondition placeholder1 = new WinCondition("genre", "Action", 3);
             WinCondition placeholder2 = new WinCondition("genre", "Comedy", 4);

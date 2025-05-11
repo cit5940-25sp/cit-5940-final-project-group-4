@@ -7,10 +7,10 @@ import lombok.Data;
  */
 @Data
 public class WinCondition {
-    // Condition type (movie genre)
+    // Condition type (movie genre, actor, director, etc.)
     private String conditionType;
 
-    // Conditional value (specific genre type)
+    // Conditional value (specific type, actor name, director name, etc.)
     private String conditionValue;
 
     // Target times (how many times are needed to achieve the condition)）
@@ -50,10 +50,6 @@ public class WinCondition {
         return this.currentCount >= this.targetCount;
     }
     
-    /**
-     * Returns the specific value associated with the win condition,
-     * such as a genre name.
-     */
     public String getConditionValue() {
         return this.conditionValue;
     }

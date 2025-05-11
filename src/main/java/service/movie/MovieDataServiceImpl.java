@@ -75,7 +75,7 @@ public class MovieDataServiceImpl implements MovieDataService {
         indexService.initializeIndexes(initialMoviesList);
 
         // Preload launcher movie list (currently uses first 20 movies or all as examples)
-        int starterLimit = Math.min(20, initialMoviesList.size());
+        int starterLimit = 20;
         starterMovies = initialMoviesList
                 .stream()
                 .limit(starterLimit)
@@ -89,15 +89,10 @@ public class MovieDataServiceImpl implements MovieDataService {
 
     @Override
     public Movie getRandomStarterMovie() {
-        if (starterMovies.isEmpty()) {
             // If the starter movie is empty, return the first movie in the initial list
-            return initialMoviesList.get(0);
+            int start = random.nextInt(1000);
+            return initialMoviesList.get(start);
         }
-
-        // Returns a random launcher movie
-        int index = random.nextInt(starterMovies.size());
-        return starterMovies.get(index);
-    }
 
     @Override
     public List<Movie> searchMoviesByPrefix(String prefix) {
@@ -113,9 +108,9 @@ public class MovieDataServiceImpl implements MovieDataService {
             results = TMDBApiService.searchMovies(prefix, 1);
 
             // Add to Index
-            for (Movie movie : results) {
-                indexService.getMovieById(movie.getId());
-            }
+//            for (Movie movie : results) {
+//                indexService.getMovieById(movie.getId());
+//            }
         }
 
         return results;
@@ -124,11 +119,6 @@ public class MovieDataServiceImpl implements MovieDataService {
     @Override
     public Movie getMovieById(int movieId) {
         return indexService.getMovieById(movieId);
-    }
-    
-    @Override
-    public MovieCredits getMovieCredits(int movieId) {
-        return indexService.getMovieCredits(movieId);
     }
 
 
@@ -335,5 +325,9 @@ public class MovieDataServiceImpl implements MovieDataService {
         }
     }
     
+    @Override
+    public MovieCredits getMovieCredits(int movieId) {
+        return indexService.getMovieCredits(movieId);
+    }
 
 }

@@ -139,11 +139,6 @@ public class ConsoleView {
     }
 
     public void startCountdownTimer(int seconds, Runnable onTimeout, Label timerLabel) {
-//        if (scheduler != null && !scheduler.isShutdown()) {
-//            // Already running, do not restart
-//            return;
-//        }
-
         secondsRemaining = seconds;
         timerRunning = true;
 

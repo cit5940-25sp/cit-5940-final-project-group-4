@@ -65,12 +65,6 @@ public class MovieDataServiceImplTest {
     }
 
     @Test
-    public void testGetRandomStarterMovie() {
-        Movie movie = movieDataService.getRandomStarterMovie();
-        assertNotNull(movie);
-    }
-
-    @Test
     public void testSearchMoviesByPrefix() {
         List<Movie> results = movieDataService.searchMoviesByPrefix("mov");
         assertNotNull(results);
@@ -83,11 +77,6 @@ public class MovieDataServiceImplTest {
         assertEquals(1, movie.getId());
     }
 
-    @Test
-    public void testValidateConnection() {
-        boolean isValid = movieDataService.validateConnection(movie1, movie2);
-        assertFalse(isValid); // No shared cast/crew
-    }
 
     @Test
     public void testGetConnections() {

@@ -188,7 +188,7 @@ public class MovieIndexService {
     }
 
     /**
-     * Get movie credits by movie ID
+     * 获取电影演职人员
      */
     public MovieCredits getMovieCredits(int movieId) {
         // Query from cache first
